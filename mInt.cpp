@@ -221,6 +221,8 @@ void _GCD(const mIntType &a, const mIntType &b, mIntType &gcd)
 }
 
 #if 0
+
+not ported yet....
 /*
 function extended_gcd(a, b)
     (old_r, r) := (a, b)

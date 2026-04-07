@@ -98,9 +98,37 @@ class mIntType
          };
 
 			// 'Russian Peasant' algorithm, slow but simple......
- 			inline mIntType& operator*=( const mIntType &b )	{
+ 			mIntType& operator*=( const mIntType &b )	{
  						mIntType t1,t2 ;
      		 		if( Sign() == 0)  return *this ; // LHS is zero
+#define KARATSUBALIMIT 100
+#ifdef KARATSUBALIMIT
+             // kind of.....
+						 if( Digits() > KARATSUBALIMIT){
+						 	 mIntType t1, t2;
+						 	 size_t cut = (val.size() >> 1);
+						 	 for(size_t i = 0 ; i < val.size(); i++)
+						 	     if( i < cut) t1.val.push_back(val[i]);
+						 	     else t2.val.push_back(val[i]);  
+						 	 while(t1.val.size() && (t1.val.back() == 0 )) t1.val.pop_back();
+						   t1 *= b ; 
+						   t2 *= b ; t2.mulModulus(cut);
+						   *this = t1;  *this += t2 ;
+						 	 return *this;
+						 }
+						 if( b.Digits() > KARATSUBALIMIT){
+						 	 mIntType t1, t2;
+						 	 size_t cut = (b.val.size() >>1);
+						 	 for(size_t i = 0 ; i < b.val.size(); i++)
+						 	     if( i < cut) t1.val.push_back(b.val[i]);
+						 	     else t2.val.push_back(b.val[i]);  
+						 	 while(t1.val.size() && (t1.val.back() == 0 )) t1.val.pop_back();
+						 	 t1 *= *this ; 
+						 	 t2 *= *this ; t2.mulModulus(cut);
+						 	 *this = t1; *this += t2 ;						 	
+						 	 return *this;
+						 }
+#endif 						
      		 		// slight speed optimization, fewer shifts and additions (but of larger numbers)-  
      		 		if( val.size() < b.val.size() ){ t2 = *this; 	t1 = b;	}	
      		 		else {t1 = *this; t2 = b; }

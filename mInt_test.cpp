@@ -38,6 +38,7 @@ void testItoAtoI()
 
 void testMersenne()
 {
+#if 0	
    mIntType x ;
    for( int i = 10 ; i < 200; i++){
   			Mersenne( i, x); x.ChangeSign();
@@ -45,21 +46,19 @@ void testMersenne()
   			printf("%s \n",iToA(x));
   			std::cout << "iToString() "  << iToString(x) << std::endl;
  		}
- 		
+#endif 		
 #if 1 		
 #define MES(x) do {mIntType y; Mersenne(x,y);std::cout \
 	        <<std::endl<<" testMersenne "<< x << " " << iToString(y) << std::endl ;} while (0)		
 	        	
-  			Mersenne( 2000, x);
-  			printf("\n testMersenne  %5d : ", 2000);
-  			printf("%s \n",iToA(x));
+  	//		Mersenne( 2000, x); printf("\n testMersenne  %5d : ", 2000);	printf("%s \n",iToA(x));
 
-    MES(2000);
-    MES(5000);
-    MES(10000);
-    MES(15000);
+    //MES(2000);
+    //MES(5000);
+    //MES(10000);
+    //MES(15000);
 		MES( 21701); 
-		MES( 44497); 
+		//MES( 44497); 
     //MES( 86243); 
 #endif
 }
@@ -213,7 +212,7 @@ void tc1(){
 int main(int argc, char **argv)
 {
 	
-		testItoAtoI();
+		//testItoAtoI();
 	  //tc00();
 	  //tc01();
 	  //tc02();

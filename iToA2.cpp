@@ -136,7 +136,7 @@ void mkDivisors( unsigned int targetsize, unsigned int startSize,mIntType first,
 
 
 
-void  fastItoAaux( unsigned int level, mIntType Int, std::vector< mIntType> divStack, int sz, std::string &res)
+void  fastItoAaux( unsigned int level, mIntType Int, const std::vector< mIntType> &divStack, int sz, std::string &res)
 {
 		mIntType quotient = Int;
 		mIntType remainder;

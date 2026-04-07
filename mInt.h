@@ -134,15 +134,14 @@ class mIntType
      		 		else {t1 = *this; t2 = b; }
       	 		int resign = 1 ;
       	 		if (t1.Sign() < 0) {t1.ChangeSign(), resign = -resign; };
- 		  	 		if (t2.Sign() < 0) {t2.ChangeSign(); resign = -resign; };
-
-            val.clear(); // *this = 0;
-				 		while(t2.Sign()) {
-				  		if( t2.isOdd()) *this += t1 ;
+ 		  	 	if (t2.Sign() < 0) {t2.ChangeSign(); resign = -resign; };
+            	val.clear(); // *this = 0;
+				while(t2.Sign()) {
+						if( t2.isOdd()) *this += t1 ;
 				  		t1 <<= 1;
 				  		t2 >>= 1;
-				  	}
- 		  			if( (resign) < 0) ChangeSign(); 		       
+				}
+ 		  		if( (resign) < 0) ChangeSign(); 		       
       			return *this;
       		};
  			
@@ -166,24 +165,24 @@ class mIntType
 		      	int sign = Sign();
 		      	if (sign < 0) ChangeSign();
 #ifndef DECIMAL
- 			      while (s >BITSIZE )  {  s -=BITSIZE ; divModulus() ;} // binary allows some optimization
+ 				while (s >BITSIZE )  {  s -=BITSIZE ; divModulus() ;} // binary allows some optimization
 #endif 			      	
-            while (s-- && val.size() ){
+            	while (s-- && val.size() ){
 		 			      // we do s one bit shifts.
  			      		for(int j = 1; j < val.size(); j++ ){
  			      			if (val[j] & 1 ) val[j-1] += UL;
  			      			val[j-1] >>= 1 ;	
- 			      	  }
+ 			      	  	}
  			      		val[val.size()-1] >>= 1;
- 			      	  if (val.back() == 0 ) val.pop_back(); 
+ 			      	  	if (val.back() == 0 ) val.pop_back(); 
  			      } 			      	 			    	
- 			      if (sign < 0) ChangeSign();
- 			      return *this;
+ 			     if (sign < 0) ChangeSign();
+ 			     return *this;
  			};
 
  			inline mIntType& operator<<=(unsigned int _s){ 
- 				    for( int i = 0; i < _s ; i++)  *this += *this ;
-		      	return *this;
+ 				  for( int i = 0; i < _s ; i++)  *this += *this ;
+		      	 return *this;
  			};
 
     	                
@@ -202,14 +201,14 @@ class mIntType
     inline baseType divModulus(unsigned int p = 1) {  
     	 			baseType res = UL; // not a valid value !
     				if(val.size() > 0) {
-    						res = val[0];
-	    	      	std::reverse( val.begin(), val.end());
-	    	      	if( p >= val.size()) val.clear();
-    					  else for( int i = 0 ; i < p ; i++) val.pop_back();
-    					  std::reverse( val.begin(), val.end());
+    					res = val[0];
+	    	      		std::reverse( val.begin(), val.end());
+	    	      		if( p >= val.size()) val.clear();
+    					else for( int i = 0 ; i < p ; i++) val.pop_back();
+    					std::reverse( val.begin(), val.end());
     			  }
    				  return res ;
-       	 } ;   	                
+       	 	} ;   	                
     								
     // Number of digits in the representation, 0 has no digits, else a positive number.	
     int Digits() const { return val.size(); }			
@@ -254,7 +253,7 @@ class mIntType
 		};
 
 #ifdef VALIDATE
-    // usefull for low level debug and validation
+    // useful for low level debug and validation
     //  Dump of the internal state
 		inline  void Dump(char *txt, const std::vector<baseType> &v) const {
 			  printf( "\n %s  :\n", txt);

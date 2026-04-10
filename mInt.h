@@ -134,14 +134,15 @@ class mIntType
      		 		else {t1 = *this; t2 = b; }
       	 		int resign = 1 ;
       	 		if (t1.Sign() < 0) {t1.ChangeSign(), resign = -resign; };
- 		  	 	if (t2.Sign() < 0) {t2.ChangeSign(); resign = -resign; };
-            	val.clear(); // *this = 0;
-				while(t2.Sign()) {
-						if( t2.isOdd()) *this += t1 ;
+ 		  	 		if (t2.Sign() < 0) {t2.ChangeSign(); resign = -resign; };
+
+            val.clear(); // *this = 0;
+				 		while(t2.Sign()) {
+				  		if( t2.isOdd()) *this += t1 ;
 				  		t1 <<= 1;
 				  		t2 >>= 1;
-				}
- 		  		if( (resign) < 0) ChangeSign(); 		       
+				  	}
+ 		  			if( (resign) < 0) ChangeSign(); 		       
       			return *this;
       		};
  			
@@ -165,24 +166,24 @@ class mIntType
 		      	int sign = Sign();
 		      	if (sign < 0) ChangeSign();
 #ifndef DECIMAL
- 				while (s >BITSIZE )  {  s -=BITSIZE ; divModulus() ;} // binary allows some optimization
+ 			      while (s >BITSIZE )  {  s -=BITSIZE ; divModulus() ;} // binary allows some optimization
 #endif 			      	
-            	while (s-- && val.size() ){
+            while (s-- && val.size() ){
 		 			      // we do s one bit shifts.
  			      		for(int j = 1; j < val.size(); j++ ){
  			      			if (val[j] & 1 ) val[j-1] += UL;
  			      			val[j-1] >>= 1 ;	
- 			      	  	}
+ 			      	  }
  			      		val[val.size()-1] >>= 1;
- 			      	  	if (val.back() == 0 ) val.pop_back(); 
+ 			      	  if (val.back() == 0 ) val.pop_back(); 
  			      } 			      	 			    	
- 			     if (sign < 0) ChangeSign();
- 			     return *this;
+ 			      if (sign < 0) ChangeSign();
+ 			      return *this;
  			};
 
  			inline mIntType& operator<<=(unsigned int _s){ 
- 				  for( int i = 0; i < _s ; i++)  *this += *this ;
-		      	 return *this;
+ 				    for( int i = 0; i < _s ; i++)  *this += *this ;
+		      	return *this;
  			};
 
     	                
@@ -201,23 +202,23 @@ class mIntType
     inline baseType divModulus(unsigned int p = 1) {  
     	 			baseType res = UL; // not a valid value !
     				if(val.size() > 0) {
-    					res = val[0];
-	    	      		std::reverse( val.begin(), val.end());
-	    	      		if( p >= val.size()) val.clear();
-    					else for( int i = 0 ; i < p ; i++) val.pop_back();
-    					std::reverse( val.begin(), val.end());
+    						res = val[0];
+	    	      	std::reverse( val.begin(), val.end());
+	    	      	if( p >= val.size()) val.clear();
+    					  else for( int i = 0 ; i < p ; i++) val.pop_back();
+    					  std::reverse( val.begin(), val.end());
     			  }
    				  return res ;
-       	 	} ;   	                
+       	 } ;   	                
     								
     // Number of digits in the representation, 0 has no digits, else a positive number.	
     int Digits() const { return val.size(); }			
-        													 
+    baseType LSD() const {if (val.size()) return val[0]; else return 0; }    													 
     int isOdd() const {if (val.size()) return (val[0] & 1) == 1; else return 0;};													 
     							
-		// I would have liked to avoid this friend declaration, but a quick and dirty workaround	reusing old code......
+		// I would have liked to friend declarations, but a quick and dirty workaround	reusing old code......
 		friend void DivRem(const mIntType &a, const mIntType &m, mIntType &Quotient, mIntType &Remainder );	
-	
+	  
 	private:
 
 		std::vector<baseType> val;
@@ -253,7 +254,7 @@ class mIntType
 		};
 
 #ifdef VALIDATE
-    // useful for low level debug and validation
+    // usefull for low level debug and validation
     //  Dump of the internal state
 		inline  void Dump(char *txt, const std::vector<baseType> &v) const {
 			  printf( "\n %s  :\n", txt);
@@ -273,36 +274,29 @@ class mIntType
 #endif			
 };  //class mIntType 
 
-//
-//
-//
-//
-//   The definitions below are not part of the mIntType class,
-//   but pretty useful, e.g. if you want to print or read the value of an mInt-instance
-//
-mIntType aToI(const char *c); 
 
-/* variants of iToA */
+
+// Nice to have, but not essential in, say, an embedded application.
 #define FORMAT 	"%09d"		
 #define GRANULARITY  1000000000
 char *iToA(const mIntType &a );
-std::string iToString(const mIntType &a ); //experimental faster (when radix is binary) 
-	                                     //and more complicated version
+mIntType aToI(const char *c); 
 
-// 0 if equal, 1 if a > b, -1 if a < b;
-// AKA  Sign() of (a-b) 
-int mIntCompare( const mIntType &a, const mIntType &b);
+// Nice to have as an convenience.
+inline mIntType operator-( const mIntType a,const mIntType b ){
+	   mIntType temp(a);	   temp-= b;	   return temp;}
+inline mIntType operator+( const mIntType a,const mIntType b ){
+	   mIntType temp(a);	   temp+= b;	   return temp; }
+inline mIntType operator*( const mIntType a,const mIntType b ){
+	   mIntType temp(a);	   temp*= b;	   return temp;}
+inline mIntType operator/( const mIntType a,const mIntType b ){
+	   mIntType temp(a);	   temp/= b;	   return temp;}
+inline mIntType operator%( const mIntType a,const mIntType b ){
+	   mIntType temp(a);	   temp%= b;	   return temp;}
 
-// Nice to have 
-inline bool operator==(const mIntType &a, const mIntType &b ) {return 0 == mIntCompare(a,b);}
-inline bool operator>=(const mIntType &a, const mIntType &b ) {return -1 != mIntCompare(a,b);}
-inline bool operator<=(const mIntType &a, const mIntType &b ) {return 1  != mIntCompare(a,b);}
-inline bool operator>(const mIntType &a, const mIntType &b ) {return 1 == mIntCompare(a,b);}
-inline bool operator<(const mIntType &a, const mIntType &b ) {return -1  == mIntCompare(a,b);}
-inline bool operator!=(const mIntType &a, const mIntType &b ) {return 0 != mIntCompare(a,b);}
-
-/* Fun stuff, applications of mIntType */
-
-void  Mersenne(unsigned int N, mIntType &a );
-void _GCD(const mIntType &a, const mIntType &b, mIntType &gcd);
-
+inline bool operator==(const mIntType &a, const mIntType &b ) {return 0 == (a-b).Sign();}
+inline bool operator>=(const mIntType &a, const mIntType &b ) {return -1 != (a-b).Sign();}
+inline bool operator<=(const mIntType &a, const mIntType &b ) {return 1  != (a-b).Sign();}
+inline bool operator>(const mIntType &a, const mIntType &b ) {return 1 == (a-b).Sign();}
+inline bool operator<(const mIntType &a, const mIntType &b ) {return -1  == (a-b).Sign();}
+inline bool operator!=(const mIntType &a, const mIntType &b ) {return 0 != (a-b).Sign();}

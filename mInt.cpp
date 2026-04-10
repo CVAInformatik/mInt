@@ -1,13 +1,13 @@
 
 #include "mInt.h"
 
+
 // 0 if equal, 1 if a > b, -1 if a < b;
 int mIntCompare( const mIntType &a, const mIntType &b){
    mIntType temp(a)	;
    temp -= b ;
    return temp.Sign();
 }
-
 
 mIntType aToI(const char *c) 
 {
@@ -27,6 +27,8 @@ mIntType aToI(const char *c)
 		    return res;
 };
 
+
+
 char *iToA(const mIntType &a ) 
 {
 			mIntType temp(a) ; 
@@ -40,7 +42,7 @@ char *iToA(const mIntType &a )
       if( temp.Sign() < 0 ) temp.ChangeSign();
       	
 			/* not zero and not negative */			
-		  c = (char *) malloc(5+(temp.Digits() *10));
+		  c = (char *) malloc(5+(temp.Digits() *11));
 		  memset(c,0, 5+(temp.Digits()*10) );
 			char *d = c;	
 
@@ -51,6 +53,7 @@ char *iToA(const mIntType &a )
 				
 #ifdef DECIMAL
 				sprintf(buffer,FORMAT, temp.divModulus());			  
+
 				char *c2 = buffer+8;
 				for( int i = 0 ; i < 9 ; i++)	*d++ = *c2--;// append, reverse and terminate.
 				*d = '\0'; 				
@@ -86,8 +89,6 @@ char *iToA(const mIntType &a )
 #endif				
 		  } while (temp.Sign() > 0 );
 
-			
-
 		  /* tidy up  and reverse full result */
 			char *d1 = c;
 			char *d2 = d-1;
@@ -101,22 +102,7 @@ char *iToA(const mIntType &a )
 				 d1++; d2--;	
 			} 
 		  return (char *) realloc(c, 1+strlen(c));
-		}
-		
-		
-void  Mersenne(unsigned int _N,  mIntType &a )
-{
-	
-	  unsigned int N = _N;
-	  a = 1 ;
-	  while( N >20){
-	  	 N -= 20;
-	  	 a *= (1024*1024);
-	  }
-	  while (N--) a <<= 1 ; 
-	  a -= 1;
 }
-
 
 void DivRem(const mIntType &a, const mIntType &m, mIntType &Quotient, mIntType &Remainder )
 {
@@ -130,6 +116,10 @@ void DivRem(const mIntType &a, const mIntType &m, mIntType &Quotient, mIntType &
 	{
 			Quotient = (a.val[0]/m.val[0]);
 			Remainder= (a.val[0] % m.val[0]);
+			if( Remainder.val.size() > 0 )
+				printf("DivRem  R %d\n", Remainder.val[0]);
+			else 
+				printf("DivRem  R %d\n", 0);
 			return;
 	}
 	
@@ -188,96 +178,3 @@ void DivRem(const mIntType &a, const mIntType &m, mIntType &Quotient, mIntType &
 		
 }
 
-
-void _GCD(const mIntType &a, const mIntType &b, mIntType &gcd)
-{
-	  if(a.Sign()== 0) { gcd =  0; return ;}
-	  if(b.Sign()== 0) { gcd =  0; return ;}
-	  
-	  unsigned int shift = 0;
-	  mIntType _ac(a);
-	  mIntType _bc(b);
-	  
-	  while ( !_ac.isOdd() && !_bc.isOdd()){
-	  	 _ac >>= 1;
-	  	 _bc >>= 1;
-	  	 shift++;
-	  }
-
-	  while (!_ac.isOdd()) _ac >>= 1;
-	  
-    while (_bc.Sign() > 0) {
-	 			 while (!_bc.isOdd()) _bc >>= 1;	
-				 if( _ac < _bc ) {
-	 			 	mIntType swap = _ac ;
-	 			 	_ac = _bc;
-	 			 	_bc = swap;
-	 			 }
-	 			 _bc -= _ac;
-	 			 _bc >>= 1 ; 
-		}
-		_ac <<= shift ;
-		gcd = mIntType(_ac);
-}
-
-#if 0
-
-not ported yet....
-/*
-function extended_gcd(a, b)
-    (old_r, r) := (a, b)
-    (old_s, s) := (1, 0)
-    (old_t, t) := (0, 1)
-    
-    while r ? 0 do
-        quotient := old_r div r
-        (old_r, r) := (r, old_r - quotient × r)
-        (old_s, s) := (s, old_s - quotient × s)
-        (old_t, t) := (t, old_t - quotient × t)
-    
-    output "Bézout coefficients:", (old_s, old_t)
-    output "greatest common divisor:", old_r
-    output "quotients by the gcd:", (t, s)
-*/
-
-void extendedGCD(const yabIntType &a, const yabIntType &b, yabIntType &gcd, yabIntType &am, yabIntType &bm  )
-{
-	yabIntType old_r(a);
-	yabIntType r(b);
-	yabIntType old_s((long long) 1);
-	yabIntType s((long long) 0);
-	yabIntType old_t((long long) 0);
-	yabIntType t((long long) 1);
-	
-	while(!r.isZero()){
-		 yabIntType quotient ;
-		 yabIntType rem;
-		 DivRem( old_r, r, quotient, rem);
-		 { // (old_r, r) := (r, old_r - quotient × r)
-		 	  yabIntType temp_oldr(old_r);
-		 	  old_r = r;
-		 	  r *= quotient ;
-		 	  r.ChangeSign();
-		 	  r += temp_oldr;		 	  
-		 }
-		 { // (old_s, s) := (s, old_s - quotient × s)
-		 	 yabIntType temp_olds(old_s);
-		 	 old_s = s;
-		 	 s *= quotient;
-		 	 s.ChangeSign();
-		 	 s +=  temp_olds;
-		 }
-		 { //  (old_t, t) := (t, old_t - quotient × t)
-		 	  yabIntType temp_oldt(old_t);
-		 	  old_t = t;
-		 	  t *= quotient;
-		 	  t.ChangeSign();
-		 	  t += temp_oldt;
-		 }		
-	}
-  gcd = old_r;
-	am =  old_s;
-	bm =  old_t;	
-}
-
-#endif

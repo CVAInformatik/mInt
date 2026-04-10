@@ -3,6 +3,10 @@
 #include <iostream>
 #include "mInt.h"
 
+#define FORMAT 	"%09d"		
+#define GRANULARITY  1000000000
+
+
 #ifdef DECIMAL
 std::string iToString(const mIntType &a ) 
 {	

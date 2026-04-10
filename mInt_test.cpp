@@ -41,7 +41,6 @@ void testItoAtoI()
 
 #ifdef ITOSTRING
 #ifdef MERSENNE 		
-
 void testMersenne()
 {
 #if 0	
@@ -279,8 +278,9 @@ int main(int argc, char **argv)
 	      mIntType z ; 
 	      z = y + x ; 
 	      std::cout << " z "  << iToString(z) << std::endl ;
-	       
-	  //testJacobi();
+#ifdef JACOBI	       
+	  testJacobi();
+#endif	  
 	  //testGCD();
 		//testItoAtoI();
 	  //tc00();

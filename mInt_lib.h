@@ -19,8 +19,9 @@ std::string iToString(const mIntType &a ); //experimental faster (when radix is 
 
 #define MERSENNE
 void  Mersenne(unsigned int N, mIntType &a );
+
 #define GCD
 void _GCD(const mIntType &a, const mIntType &b, mIntType &gcd);
 void extendedGCD(const mIntType &a, const mIntType &b, mIntType &gcd, mIntType &am, mIntType &bm  );
-#define JABOBI
+#define JACOBI
 int Jacobi(const mIntType& a, const mIntType& b);

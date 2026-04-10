@@ -116,11 +116,11 @@ void DivRem(const mIntType &a, const mIntType &m, mIntType &Quotient, mIntType &
 	{
 			Quotient = (a.val[0]/m.val[0]);
 			Remainder= (a.val[0] % m.val[0]);
-			if( Remainder.val.size() > 0 )
-				printf("DivRem  R %d\n", Remainder.val[0]);
+/*			if( Remainder.val.size() > 0 )
+				printf("1 DivRem  R %d\n", Remainder.val[0]);
 			else 
-				printf("DivRem  R %d\n", 0);
-			return;
+				printf("2 DivRem  R %d\n", 0);
+*/			return;
 	}
 	
 	// at least one big number

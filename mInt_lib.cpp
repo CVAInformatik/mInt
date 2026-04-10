@@ -1,103 +1,8 @@
 
 #include "mInt.h"
+#include "mInt_lib.h"
 
-#if 0
-
-mIntType aToI(const char *c) 
-{
-        mIntType res ;
-			  char *b = (char *)c ;
-			  int sign = 0;
-		    while( isspace(*b)) b++;
-		    if( *b == '-') { sign  = -1; b++;}
-		    else if( *b == '+') { sign  = +1; b++;};		    
-		    res = 0;
-		    while( isdigit(*b))	{		    	
-		    	res *= 10 ;
-		    	res += (*b -'0') ;
-		    	b++;
-		    }
-		    if( sign < 0 ) res.ChangeSign();
-		    return res;
-};
-
-char *iToA(const mIntType &a ) 
-{
-			mIntType temp(a) ; 
-			mIntType Q ;
-			mIntType qt ;
-			char *c;
-			
-			/* special case: 0*/
-			if(temp.Sign() == 0)	{c = (char *) malloc(2); sprintf(c, "0");	return c;	}
-			
-      if( temp.Sign() < 0 ) temp.ChangeSign();
-      	
-			/* not zero and not negative */			
-		  c = (char *) malloc(5+(temp.Digits() *10));
-		  memset(c,0, 5+(temp.Digits()*10) );
-			char *d = c;	
-
-// we convert in 9 digit lumps			
-
-			do {	
-				char buffer[10] ;
-				
-#ifdef DECIMAL
-				sprintf(buffer,FORMAT, temp.divModulus());			  
-				char *c2 = buffer+8;
-				for( int i = 0 ; i < 9 ; i++)	*d++ = *c2--;// append, reverse and terminate.
-				*d = '\0'; 				
-#else
-
-        mIntType GRAN (GRANULARITY);				
-        
-        while(temp > GRAN ) {
-					qt = temp;
-					qt.divModulus();
-					if(qt.Sign()== 0) qt = 1;
-					Q += qt;
-				  qt *= GRAN;
-					temp -= qt;
-				} 
-			  
-			  if(temp == GRAN) {
-			  	temp -= GRAN;
-			  	Q += 1;
-			  }
-			  
-        // here temp is the remainder of  temp%GRANULARITY and Q is temp/GRANULARITY
-			  if( temp.Sign() == 0 )
-			  	sprintf(buffer,FORMAT, 0);
-				else
-					 sprintf(buffer,FORMAT, temp.divModulus());
-					 
-				char *c2 = buffer+8;
-				for( int i = 0 ; i < 9 ; i++)	*d++ = *c2--;
-				*d = '\0'; 				
-				temp = Q;
-				Q = 0;
-#endif				
-		  } while (temp.Sign() > 0 );
-
-			
-
-		  /* tidy up  and reverse full result */
-			char *d1 = c;
-			char *d2 = d-1;
-			while (*d2 == '0') {*d2-- = 0; }; // drop leading zeroes
-			if (a.Sign()< 0 ) *++d2 = '-';  // add a minus if negative 
-			*(d2+1) = 0;// and zero terminate, just to be sure	
-			while (d1 < d2){ 
-				 *d1 ^= *d2; // swap values of *d1 and *d2 using three XORs
-				 *d2 ^= *d1; 
-				 *d1 ^= *d2; 
-				 d1++; d2--;	
-			} 
-		  return (char *) realloc(c, 1+strlen(c));
-		}
-#endif		
-		
+#ifdef MERSENNE		
 void  Mersenne(unsigned int _N,  mIntType &a )
 {
 	
@@ -110,10 +15,10 @@ void  Mersenne(unsigned int _N,  mIntType &a )
 	  while (N--) a <<= 1 ; 
 	  a -= 1;
 }
+#endif
 
 
-
-
+#ifdef GCD
 void _GCD(const mIntType &a, const mIntType &b, mIntType &gcd)
 {
 	  if(a.Sign()== 0) { gcd =  0; return ;}
@@ -144,7 +49,7 @@ void _GCD(const mIntType &a, const mIntType &b, mIntType &gcd)
 		_ac <<= shift ;
 		gcd = mIntType(_ac);
 }
-
+#endif
 #if 1
 /*
 function extended_gcd(a, b)
@@ -205,57 +110,41 @@ void extendedGCD(const mIntType &a, const mIntType &b, mIntType &gcd, mIntType &
 
 #endif
 
-#if 0
-int Jacobi(const mIntType& a, const mIntType& b)
+#define JACOBI
+#ifdef JACOBI
+//
+//  From Wikipedia, with a small change
+//
+int Jacobi(const mIntType& _a, const mIntType& _n)
 {
-
-	mIntType A(a);
-	mIntType M(b);
-	int ResSign = 1;
-	if (M.Sign() == 0)
-		return 1;
-	else {
-		mIntType rem, quotient;
-
-	  DivRem(A, M, quotient, rem); A = rem;
-		if (rem.Sign()== 0) {  //A|M 
-			printf( " A %s M %s quotient %s  rem %s \n", iToA(A), iToA(M), iToA(quotient), iToA(rem) );
-			return 0;
-		}
-		else {
-			while (A.Sign() != 0) {
-				while ((A.Sign() != 0) && (!A.isOdd()))
-				{
-					A>>= 1;
-					switch (M.LSD() & 0x7)
-					{
-					case 3: 
-          case 5:   
-               ResSign = -ResSign;
-						break;
-					default:
-						break;
-					}
-				}
-				mIntType temp(A);
-				A = M;
-				M = temp;
-				if ((A.Sign() != 0) && (M.Sign() != 0 ) && (3 == (A.LSD() & 0x3)) && (3 == (M.LSD() & 0x3))) 
-                    ResSign = -ResSign;
-        DivRem(A, M, quotient, rem); A = rem;
-
-			}
-			if ((M.Digits() == 1) && (M.isOdd()))
-				return ResSign;
-			else
-				return 0;
-		}
-	}
-};
-#elif 1
-
-int Jacobi(const mIntType& a, const mIntType& b)
-{
-   return 1;
+	 mIntType a(_a);
+	 mIntType n(_n);
+	
+	 if( !n.isOdd()) { printf("Jacobi n must be odd\n"); return 0; }
+	 if( n <= 0) 	{    printf("Jacobi n must positive\n"); return 0; }
+	 	
+	 while ( a < 0 ) a += n;
+	 
+	 int t = 0;
+	 
+	 while (a != 0){
+	 	while ((a.LSD() & 3) == 0) a >>= 2;
+	 	if((a.LSD() & 1) == 0){
+	 		 t ^= n.LSD() & 6 ;
+	 		 a >>= 1 ;
+	 	}
+	 	t ^= a.LSD() & n.LSD() & 2 ;
+	 	mIntType r(n);
+	 	r %= a;
+	 	n = a ;
+	 	a = r ;
+	 }
+	 if( n != 1 ) return 0;
+	 switch (t)
+	 {
+	 	  case 2: case 3:
+	 	  case 4: case 5:	return -1; break;
+	 	  default: return 1 ;
+	 }
 }
 #endif

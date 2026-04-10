@@ -254,7 +254,7 @@ class mIntType
 		};
 
 #ifdef VALIDATE
-    // usefull for low level debug and validation
+    // useful for low level debug and validation
     //  Dump of the internal state
 		inline  void Dump(char *txt, const std::vector<baseType> &v) const {
 			  printf( "\n %s  :\n", txt);

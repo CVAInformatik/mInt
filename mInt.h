@@ -102,7 +102,7 @@ class mIntType
  			mIntType& operator*=( const mIntType &b )	{
  						mIntType t1,t2 ;
      		 		if( Sign() == 0)  return *this ; // LHS is zero
-//#define KARATSUBALIMIT 100
+#define KARATSUBALIMIT 100
 #ifdef KARATSUBALIMIT
              // kind of.....
 						 if( Digits() > KARATSUBALIMIT){

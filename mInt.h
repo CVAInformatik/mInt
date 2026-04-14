@@ -18,6 +18,7 @@ typedef int baseType;
 // Zero is represented by a number with no digits.
 // All digits have the same sign, minus for negative numbers, plus for postive
 
+#pragma GCC diagnostic ignored "-Wwrite-strings"
 
 #define BITSIZE 30
 #define BINMODULUS (1 << BITSIZE)
@@ -97,11 +98,11 @@ class mIntType
            return *this;
          };
 
-			// 'Russian Peasant' algorithm, slow but simple......
+			
  			mIntType& operator*=( const mIntType &b )	{
  						mIntType t1,t2 ;
      		 		if( Sign() == 0)  return *this ; // LHS is zero
-#define KARATSUBALIMIT 100
+//#define KARATSUBALIMIT 100
 #ifdef KARATSUBALIMIT
              // kind of.....
 						 if( Digits() > KARATSUBALIMIT){
@@ -128,22 +129,29 @@ class mIntType
 						 	 *this = t1; *this += t2 ;						 	
 						 	 return *this;
 						 }
-#endif 						
+#endif 	
+#define SCHOOLBOOK					
+#ifndef SCHOOLBOOK
+						// 'Russian Peasant' algorithm, slow but simple......
      		 		// slight speed optimization, fewer shifts and additions (but of larger numbers)-  
+      	 		int resign = 1 ;
      		 		if( val.size() < b.val.size() ){ t2 = *this; 	t1 = b;	}	
      		 		else {t1 = *this; t2 = b; }
-      	 		int resign = 1 ;
       	 		if (t1.Sign() < 0) {t1.ChangeSign(), resign = -resign; };
  		  	 		if (t2.Sign() < 0) {t2.ChangeSign(); resign = -resign; };
-
-            val.clear(); // *this = 0;
-				 		while(t2.Sign()) {
+ 		  	 		val.clear(); // *this = 0;
+            while(t2.Sign()) {
 				  		if( t2.isOdd()) *this += t1 ;
 				  		t1 <<= 1;
 				  		t2 >>= 1;
 				  	}
  		  			if( (resign) < 0) ChangeSign(); 		       
       			return *this;
+#else
+            mIntType _b(b);
+            schoolbookMul(_b);
+            return *this ;
+#endif
       		};
  			
  			// better use DivRem() directly, if you need both the quotient and remainder 
@@ -219,11 +227,66 @@ class mIntType
 		// I would have liked to friend declarations, but a quick and dirty workaround	reusing old code......
 		friend void DivRem(const mIntType &a, const mIntType &m, mIntType &Quotient, mIntType &Remainder );	
 	  
+	  // parked here for dev purposes
+	  void schoolbookMul (mIntType b){
+            long long a, multiplier  ;
+            
+ 						mIntType t1,t2 ;
+ 						if (Sign() == 0) { return;}
+ 						if (b.Sign() == 0) { val.clear() ; return  ;}
+
+            int sign = Sign() * b.Sign();
+            
+            if( Sign() == -1) ChangeSign();
+            if( b.Sign() == -1) b.ChangeSign();
+            
+            t1 = *this ;            
+            val.clear();
+            std::reverse(t1.val.begin(), t1.val.end());
+						while (val.size() < ((t1.val.size() + b.val.size()) +2) ) val.push_back(0);					 
+            //Dump("0: ");
+                   	
+            int offset = 0;       	
+            while (t1.val.size() ){
+            	 multiplier = ( long long ) t1.val.back(); 
+            	 t1.val.pop_back();
+            	 for(int ib = 0 ; ib < b.val.size(); ib += 2 ){
+              	a =  multiplier * b.val[ib];
+              	baseType d1, d2;
+              	d1 = a%UL; 
+              	d2 = a/UL;
+              	//printf("a  %016llX  d1 %08X  d2 %08X\n", a , d1, d2 );
+              	val[ib+offset]   += d1 ;
+              	val[ib+offset+1] += d2 ;
+              }
+              //Dump("1: ");
+	            doCarry(true); 
+              //Dump("2: ");
+            	for(int ib = 1 ; ib < b.val.size(); ib += 2 ){
+              	a =  multiplier * b.val[ib];
+              	baseType d1, d2;
+              	d1 = a%UL; 
+              	d2 = a/UL;
+              	//printf("a  %016llX  d1 %08X  d2 %08X\n", a , d1, d2 );
+              	val[ib+offset]   += d1 ;
+              	val[ib+offset+1] += d2 ;
+              }
+              //Dump("3: ");
+	            doCarry(true); 
+              //Dump("4: ");
+	            offset++ ;
+            } 	
+            doCarry();
+            if(sign == -1) ChangeSign();
+            return ;
+	  }
+	  
+	  
 	private:
 
 		std::vector<baseType> val;
 		
-		void doCarry(){
+		void doCarry(bool skip = false ){
 			  baseType carry = 0 ;
 			  for(int i = 0; i < val.size(); i++){
 			       val[i] += carry;
@@ -232,7 +295,7 @@ class mIntType
 			       else carry = 0;
 			  }
 			  if( carry != 0 ) val.push_back(carry);
-			  while( val.size()  && (val.back() == 0)) val.pop_back();
+			  if(!skip) while( val.size()  && (val.back() == 0)) val.pop_back();
 		};
 		
 		void doNormalize(){
@@ -252,7 +315,7 @@ class mIntType
 			  	}
 			  while (val.size() && (val.back() == 0)) val.pop_back();
 		};
-
+#define VALIDATE
 #ifdef VALIDATE
     // useful for low level debug and validation
     //  Dump of the internal state
@@ -294,9 +357,9 @@ inline mIntType operator/( const mIntType a,const mIntType b ){
 inline mIntType operator%( const mIntType a,const mIntType b ){
 	   mIntType temp(a);	   temp%= b;	   return temp;}
 
-inline bool operator==(const mIntType &a, const mIntType &b ) {return 0 == (a-b).Sign();}
+inline bool operator==(const mIntType &a, const mIntType &b ) {return  0 == (a-b).Sign();}
 inline bool operator>=(const mIntType &a, const mIntType &b ) {return -1 != (a-b).Sign();}
-inline bool operator<=(const mIntType &a, const mIntType &b ) {return 1  != (a-b).Sign();}
-inline bool operator>(const mIntType &a, const mIntType &b ) {return 1 == (a-b).Sign();}
-inline bool operator<(const mIntType &a, const mIntType &b ) {return -1  == (a-b).Sign();}
-inline bool operator!=(const mIntType &a, const mIntType &b ) {return 0 != (a-b).Sign();}
+inline bool operator<=(const mIntType &a, const mIntType &b ) {return  1 != (a-b).Sign();}
+inline bool operator>(const mIntType &a, const mIntType &b )  {return  1 == (a-b).Sign();}
+inline bool operator<(const mIntType &a, const mIntType &b )  {return -1 == (a-b).Sign();}
+inline bool operator!=(const mIntType &a, const mIntType &b ) {return  0 != (a-b).Sign();}

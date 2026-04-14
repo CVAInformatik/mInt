@@ -8,10 +8,17 @@ void testShifts()
 {
 	
 	mIntType x ;
-	for( int i = 0; i < 40 ; i++){
-			x = 0x3FFFFFFF;
-			printf("\n shift %3d\n",i);
+	x = 0x3FFFFFFF;
+	for( int i = 0; i < 200 ; i++){
+			printf("\n iToString() shift %3d",i);
+			std::cout << "  " << iToString(x) ;
 			x <<= i ;
+			std::cout << "  " << iToString(x)  << std::endl;
+			x >>= i ;
+			printf("\n iToA()      shift %3d",i);
+			std::cout << "  " << iToA(x)  ;
+			x <<= i ;
+			std::cout << "  " << iToA(x)  << std::endl;
 			x >>= i ;
 	}
 }
@@ -43,10 +50,10 @@ void testItoAtoI()
 #ifdef MERSENNE 		
 void testMersenne()
 {
-#if 0	
+#if 1	
    mIntType x ;
    for( int i = 10 ; i < 200; i++){
-  			Mersenne( i, x); x.ChangeSign();
+  			Mersenne( i, x);// x.ChangeSign();
   			printf("\n testMersenne  %5d : ", i);
   			printf("%s \n",iToA(x));
   			std::cout << "iToString() "  << iToString(x) << std::endl;
@@ -58,13 +65,13 @@ void testMersenne()
 	        	
   	//		Mersenne( 2000, x); printf("\n testMersenne  %5d : ", 2000);	printf("%s \n",iToA(x));
 
-    //MES(2000);
-    //MES(5000);
-    //MES(10000);
-    //MES(15000);
+    MES(2000);
+    MES(5000);
+    MES(10000);
+    MES(15000);
 		MES( 21701); 
-		//MES( 44497); 
-    //MES( 86243); 
+		MES( 44497); 
+    MES( 86243); 
 
 }
 
@@ -271,17 +278,46 @@ void testGCD()
 }
 #endif
 
+void testMultiplication()
+{
+	mIntType a, b ;
+	a = aToI("987654321") ;
+	b = aToI("12345678900") ;
+	printf( " a %s\n", iToA(a));
+	printf( " b %s\n", iToA(b));
+  a *= b;
+	printf( "P a*=b %s\n", iToA(a));
+	a = aToI("987654321") ;
+	a.schoolbookMul( b) ;
+	printf( "S a*=b %s\n", iToA(a));
+	a = aToI("98765432100000000000000000000000000000") ;
+	b = aToI("123456789000000000000000000000000000000") ;
+	printf( " a %s\n", iToA(a));
+	printf( " b %s\n", iToA(b));
+  a *= b;
+	printf( "P a*=b %s\n", iToA(a));
+	a = aToI("98765432100000000000000000000000000000") ;
+	a.schoolbookMul( b) ;
+	printf( "S a*=b %s\n", iToA(a));
+}
+
+
 int main(int argc, char **argv)
 {
+	      testMultiplication();
+	#if 0
 	      mIntType x(  863816);
 	      mIntType y(29792147);
 	      mIntType z ; 
 	      z = y + x ; 
 	      std::cout << " z "  << iToString(z) << std::endl ;
+	#endif
 #ifdef JACOBI	       
-	  testJacobi();
+	  //testJacobi();
 #endif	  
+#ifdef GCD
 	  //testGCD();
+#endif
 		//testItoAtoI();
 	  //tc00();
 	  //tc01();
@@ -289,9 +325,9 @@ int main(int argc, char **argv)
 	  //tc03();
 	  
     //tc1();
-	  //testMersenne();
+	  testMersenne();
 //	testItoAtoI();
-//	testShifts();
+  	//testShifts();
 	
 
 }

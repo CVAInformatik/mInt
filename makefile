@@ -6,7 +6,6 @@ CPPFLAGS =  -O2   -Wwrite-strings
 %.o  :  %.cpp
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 
-
 clean:
 	rm *.o
 

@@ -25,4 +25,4 @@ mInt_rand.h adds a simple radom number generator (used in some mInt_lib function
 
 mInt_test.cpp tests/demonstrates the various functions in mInt_lib
 
-Planned extensions:  a class implementing Montgomery multiplication using mInt,  Schönhage-Strassen multiplication for very large numbers.
+Planned extensions:  a class implementing Montgomery Arithmetic using mInt,  Schönhage-Strassen FFT multiplication for very large numbers.

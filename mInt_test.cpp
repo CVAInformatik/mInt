@@ -1,8 +1,19 @@
+/*
+Copyright  ©2026 Claus Vind-Andreasen
+
+This program is free software; you can redistribute it and /or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 - 1307 USA
+This General Public License does not permit incorporating your program into proprietary programs.If your program is a subroutine library, you may consider it more useful to permit linking proprietary applications with the library.
+If this is what you want to do, use the GNU Library General Public License instead of this License.
+*/
 
 #include "mInt.h"
 #include "mInt_lib.h"
+#include "mInt_rand.h"
 
 #include <iostream>
+#include <iomanip> 
 
 void testShifts()
 {
@@ -60,8 +71,8 @@ void testMersenne()
  		}
 #endif 		
 
-#define MES(x) do {mIntType y; Mersenne(x,y);std::cout \
-	        <<std::endl<<" testMersenne "<< x << " " << iToString(y) << std::endl ;} while (0)		
+#define MES(x) do {mIntType y; Mersenne(x,y); std::string s = iToString(y); std::cout \
+	        <<std::endl<<" testMersenne "<< x << " " << s.length() << " "<< std::endl << s << std::endl ;} while (0)		
 	        	
   	//		Mersenne( 2000, x); printf("\n testMersenne  %5d : ", 2000);	printf("%s \n",iToA(x));
 
@@ -278,6 +289,7 @@ void testGCD()
 }
 #endif
 
+#if 0 // old debug code
 void testMultiplication()
 {
 	mIntType a, b ;
@@ -300,23 +312,184 @@ void testMultiplication()
 	a.schoolbookMul( b) ;
 	printf( "S a*=b %s\n", iToA(a));
 }
+#endif
 
+/* 
+    Illustrates the use of the Rand_mIntType class , and shows some ways to massage the output
+    to be in the range 0..<seed>
+*/
+void testRandom()
+{
+	
+#define REPS 50
+	 Rand_mIntType r;
+	 
+	 mIntType a ;   a = aToI("92461924758476912469164612946194691962496124961946");
+
+   std::cout << "    seed  : " << iToString(a) << std::endl ;
+	 for (int i = 0 ; i < REPS ; i++){
+	 	  mIntType m = r.rand(a);
+	 	  std::cout << "     " << std::setw(4) << i << " : " << iToString(m) << std::endl ;
+	 }
+	 std::cout << std::endl;
+	 	
+	 	
+   std::cout << "    seed  : " << iToString(a) << std::endl ;
+	 for (int i = 0 ; i < REPS ; i++){	 	
+	 	  mIntType m = r.rand(a);
+	 	  while ( m >= a) m >>= 1 ;
+	 	  std::cout << "     " << std::setw(4) << i << " : " << iToString(m) << std::endl ;
+	 }
+	 std::cout << std::endl;
+	 		
+   std::cout << "    seed  : " << iToString(a) << std::endl ;
+	 for (int i = 0 ; i < REPS ; i++){
+	 	  mIntType m = r.rand(a);
+	 	  while ( m >= a) m %= a;
+	 	  std::cout << "     " << std::setw(4) <<i << " : " << iToString(m) << std::endl ;
+	 }
+	 std::cout << std::endl;
+
+   std::cout << "    seed  : " << iToString(a) << std::endl ;
+	 for (int i = 0 ; i < REPS ; i++){
+	 	  mIntType m = r.rand1(a);
+	 	  std::cout << "     " << std::setw(4) <<i << " : " << iToString(m) << std::endl ;
+	 }
+	 std::cout << std::endl;
+	
+}
+
+void testMR1(int &npcount, int &pcount, int width,  mIntType& p)
+{
+    mIntType prime = p;
+
+    std::string s = iToString(prime);
+    std::string prefix = "";
+
+    while (prefix.length() + s.length() < width) prefix = prefix + " ";
+
+    if (MillerRabin(prime, 30)) {
+        std::cout << "n " << prefix << s << " is probably prime  " <<   ++pcount << std::endl;
+    }
+    else {
+        std::cout << "n " << prefix << s << " is not prime  " <<  ++npcount + pcount <<  std::endl;
+    };
+}
+
+
+void testModMult()
+{
+    mIntType mod; mod = aToI("2147483647");
+    mIntType result; result = aToI("4026531840");
+    std::cout << "mod : " << iToString(mod) << std::endl;
+    std::cout << "result: " << iToString(result) << std::endl;
+     //result = RemQuotient(result, mod, NULL);
+     result %= mod ;
+     std::cout << "result: " << iToString(result) << std::endl;
+}
+
+
+
+void testMR()
+{
+    mIntType prime; prime = aToI("26959946667150639794667015087019630673557916260026308143510066298881");
+
+    mIntType prime1; prime1 = aToI("5127821565631733");
+
+   	mIntType prime2; prime2 = aToI("2147483647");
+#define WIDTH 75
+    int np = 0, p = 0;
+    testMR1(np, p, WIDTH, prime2);
+    testMR1(np, p, WIDTH, prime1);
+    testMR1(np, p, WIDTH, prime2);
+
+    Rand_mIntType Rands;
+
+
+#define COUNT 1000
+
+    np = 0;
+    p = 0;
+
+    std::cout << "    seed:             " << iToString(prime) << std::endl;
+    for (int i = 0; i < COUNT; i++) {
+#if 1
+        mIntType pc = Rands.rand(prime);
+        if (!pc.isOdd()) pc += 1;
+ //       std::cout << "mod : " << iToString(p) << std::endl;
+        testMR1(np, p, WIDTH, pc);
+#else
+        testModMult();
+#endif
+
+    }
+}
+
+#ifdef TONELLISHANKS
+void testTonelliShanks()
+{
+#ifdef PERF
+    LARGE_INTEGER StartingTime, EndingTime, ElapsedMicroseconds;
+    LARGE_INTEGER Frequency;
+#endif
+
+    mIntType  P; P = aToI("26959946667150639794667015087019630673557916260026308143510066298881");
+    //mIntType  A; A = aToI("18958286285566608000408668544493926415504680968679321075787234672564");
+    mIntType  Res;
+#define P224 1
+#if P224
+    // NIST P-224 
+    for (int i = 0; i < 5; i++) {
+        mIntType t; t = aToI("2021");
+        mIntType  A; A = aToI("18958286285566608000408668544493926415504680968679321075787234672564");
+        t = t * t * t;
+        A += t;
+        A += -1*(3 * 2021);
+#ifdef PERF
+        QueryPerformanceFrequency(&Frequency);
+        QueryPerformanceCounter(&StartingTime);
+#endif
+        TonelliShanks(A, P, Res);
+#ifdef PERF
+        QueryPerformanceCounter(&EndingTime);
+        ElapsedMicroseconds.QuadPart = EndingTime.QuadPart - StartingTime.QuadPart;
+        ElapsedMicroseconds.QuadPart *= 1000000;
+        ElapsedMicroseconds.QuadPart /= Frequency.QuadPart;
+        std::cout << "Elapsed time(microseconds) : " << ElapsedMicroseconds.QuadPart << std::endl;
+#endif
+
+        std::cout << std::endl << " A:   " << iToString(A) << std::endl;
+        std::cout << " P:   " << iToString(P) << std::endl;
+        std::cout << " Res: " << iToString(Res) << std::endl;
+        Res = Res * Res;
+        std::cout << " Res * Res  : " << iToString(Res)<< std::endl;
+        Res %= P ;
+        std::cout << " Res * Res  mod P: " << iToString(Res) << std::endl;
+    }
+    return;
+#else
+#endif
+
+}
+#endif
 
 int main(int argc, char **argv)
 {
-	      testMultiplication();
+	      testTonelliShanks();
+	      //testMR();
+	      //testRandom();
+	      //testMultiplication();
 	#if 0
 	      mIntType x(  863816);
 	      mIntType y(29792147);
 	      mIntType z ; 
 	      z = y + x ; 
 	      std::cout << " z "  << iToString(z) << std::endl ;
-	#endif
 #ifdef JACOBI	       
 	  //testJacobi();
 #endif	  
 #ifdef GCD
-	  //testGCD();
+	  testGCD();
 #endif
 		//testItoAtoI();
 	  //tc00();
@@ -329,5 +502,6 @@ int main(int argc, char **argv)
 //	testItoAtoI();
   	//testShifts();
 	
+	#endif
 
 }

@@ -1,3 +1,16 @@
+#pragma once
+/*
+Copyright  ©2026 Claus Vind-Andreasen
+
+This program is free software; you can redistribute it and /or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 - 1307 USA
+This General Public License does not permit incorporating your program into proprietary programs.If your program is a subroutine library, you may consider it more useful to permit linking proprietary applications with the library.
+If this is what you want to do, use the GNU Library General Public License instead of this License.
+*/
+
+#pragma GCC diagnostic ignored "-Wwrite-strings"
+
 /*
 		 another big Integer:    mInt
 */
@@ -16,12 +29,11 @@ typedef int baseType;
 // this range must leave a one-bit head-room at least, but gives other advantages.
 //
 // Zero is represented by a number with no digits.
-// All digits have the same sign, minus for negative numbers, plus for postive
-
-#pragma GCC diagnostic ignored "-Wwrite-strings"
+// All non-zero digits have the same sign, minus for negative numbers, plus for postive
 
 #define BITSIZE 30
 #define BINMODULUS (1 << BITSIZE)
+// BINMODULUS is   1073741824 in decimal notation
 // for DECIMAL bitsize is only 29.897.... bits, 30 will do 
 #define DECMODULUS 1000000000
 
@@ -32,11 +44,19 @@ typedef int baseType;
 #define MODULUS BINMODULUS
 #endif
 
-class  mIntType;
+// Controls karatsuba like multiplikation, the optimal value 	will depend 
+// on application and multiplication algorithm, 
+#define KARATSUBALIMIT 150
+
+// Controls SCHOOLBOOK or Russian Peasant multiplikation algorithm
+#define SCHOOLBOOK					
+
+//  Controls inclusion of Dump() methods for test and validation
+//#define VALIDATE
+
 		
 class mIntType 
 {
-
 	public:
 		static const baseType UL = MODULUS;
 		static const baseType LL = (-MODULUS);
@@ -52,8 +72,19 @@ class mIntType
 			   if( aint < 0) ChangeSign();
 				};
 
-    // destructor 
-		~mIntType() { val.clear();};  
+		/*	Do we need this ?	
+		mIntType( const std::vector<baseType> v){
+			  val.clear();
+			  val = v ;
+			   // we need to ensure things don't get silly.
+			  doCarry();
+			  doNormalize(); 
+			  // we should now have a proper mInt, with same sign for all non-zero 'digits' 
+			  // decided by Most Significant nonzero digit in v
+		} */
+    
+		~mIntType() { val.clear();};
+		
  		inline mIntType&  operator=( const mIntType &a) { 
  			         if(!( &a == this)) val = a.val; 
  			         	return *this; 
@@ -83,11 +114,9 @@ class mIntType
  			                else if(Bsign) val = b.val ; // b non-zero, a zero 			                	
  			                return *this; 
  			               }; 
-
-    /*
-        a -= b implemented as a = -(-a+b) to reuse '+=' code, respecting 'constness' of b
-        NB very important special case:  a -= a !
-    */
+    
+    //    a -= b implemented as a = -(-a+b) to reuse '+=' code, respecting 'constness' of b.
+    //    NB very important special case:  a -= a !    
  		inline mIntType& operator-=( const mIntType &b ){
  			 		 if( &b == this) val.clear();// a -= a -> a == 0
  			 		 else {
@@ -102,9 +131,8 @@ class mIntType
  			mIntType& operator*=( const mIntType &b )	{
  						mIntType t1,t2 ;
      		 		if( Sign() == 0)  return *this ; // LHS is zero
-#define KARATSUBALIMIT 100
 #ifdef KARATSUBALIMIT
-             // kind of.....
+             // kind of....
 						 if( Digits() > KARATSUBALIMIT){
 						 	 mIntType t1, t2;
 						 	 size_t cut = (val.size() >> 1);
@@ -130,16 +158,17 @@ class mIntType
 						 	 return *this;
 						 }
 #endif 	
-#define SCHOOLBOOK					
 #ifndef SCHOOLBOOK
 						// 'Russian Peasant' algorithm, slow but simple......
-     		 		// slight speed optimization, fewer shifts and additions (but of larger numbers)-  
       	 		int resign = 1 ;
+     		 		// slight speed optimization, fewer shifts and additions (but of larger numbers)-  
      		 		if( val.size() < b.val.size() ){ t2 = *this; 	t1 = b;	}	
      		 		else {t1 = *this; t2 = b; }
+     		 		// signs adjusted, we multiply positive numbers and adjust result last.	
       	 		if (t1.Sign() < 0) {t1.ChangeSign(), resign = -resign; };
  		  	 		if (t2.Sign() < 0) {t2.ChangeSign(); resign = -resign; };
  		  	 		val.clear(); // *this = 0;
+ 		  	 		// the actual multiplication happens from here 
             while(t2.Sign()) {
 				  		if( t2.isOdd()) *this += t1 ;
 				  		t1 <<= 1;
@@ -148,6 +177,7 @@ class mIntType
  		  			if( (resign) < 0) ChangeSign(); 		       
       			return *this;
 #else
+            // schoolbook multiplication a la mIntType 
             mIntType _b(b);
             schoolbookMul(_b);
             return *this ;
@@ -193,7 +223,6 @@ class mIntType
  				    for( int i = 0; i < _s ; i++)  *this += *this ;
 		      	return *this;
  			};
-
     	                
     // multiplies with modulus AKA "appending  p zeroes as least significant digits" 
     inline void mulModulus(unsigned int p = 1) { 	
@@ -206,7 +235,6 @@ class mIntType
 
     // divides with modulus AKA "removing the least p  significant digits" and returning the LSD as result 
     // if number or p  is zero returns UL ( an invalid value for a digit !) as result.        
-    //    	                
     inline baseType divModulus(unsigned int p = 1) {  
     	 			baseType res = UL; // not a valid value !
     				if(val.size() > 0) {
@@ -221,66 +249,13 @@ class mIntType
     								
     // Number of digits in the representation, 0 has no digits, else a positive number.	
     int Digits() const { return val.size(); }			
-    baseType LSD() const {if (val.size()) return val[0]; else return 0; }    													 
+    // the value of the Least Significant digit or 0 if number is 0
+    baseType LSD() const {if (val.size()) return val[0]; else return 0; } 
+    // the value of the least significant bit	
     int isOdd() const {if (val.size()) return (val[0] & 1) == 1; else return 0;};													 
     							
-		// I would have liked to friend declarations, but a quick and dirty workaround	reusing old code......
+		// I would have liked to avoid friend declarations, but a quick and dirty workaround, for re-using old code......
 		friend void DivRem(const mIntType &a, const mIntType &m, mIntType &Quotient, mIntType &Remainder );	
-	  
-	  // parked here for dev purposes
-	  void schoolbookMul (mIntType b){
-            long long a, multiplier  ;
-            
- 						mIntType t1,t2 ;
- 						if (Sign() == 0) { return;}
- 						if (b.Sign() == 0) { val.clear() ; return  ;}
-
-            int sign = Sign() * b.Sign();
-            
-            if( Sign() == -1) ChangeSign();
-            if( b.Sign() == -1) b.ChangeSign();
-            
-            t1 = *this ;            
-            val.clear();
-            std::reverse(t1.val.begin(), t1.val.end());
-						while (val.size() < ((t1.val.size() + b.val.size()) +2) ) val.push_back(0);					 
-            //Dump("0: ");
-                   	
-            int offset = 0;       	
-            while (t1.val.size() ){
-            	 multiplier = ( long long ) t1.val.back(); 
-            	 t1.val.pop_back();
-            	 for(int ib = 0 ; ib < b.val.size(); ib += 2 ){
-              	a =  multiplier * b.val[ib];
-              	baseType d1, d2;
-              	d1 = a%UL; 
-              	d2 = a/UL;
-              	//printf("a  %016llX  d1 %08X  d2 %08X\n", a , d1, d2 );
-              	val[ib+offset]   += d1 ;
-              	val[ib+offset+1] += d2 ;
-              }
-              //Dump("1: ");
-	            doCarry(true); 
-              //Dump("2: ");
-            	for(int ib = 1 ; ib < b.val.size(); ib += 2 ){
-              	a =  multiplier * b.val[ib];
-              	baseType d1, d2;
-              	d1 = a%UL; 
-              	d2 = a/UL;
-              	//printf("a  %016llX  d1 %08X  d2 %08X\n", a , d1, d2 );
-              	val[ib+offset]   += d1 ;
-              	val[ib+offset+1] += d2 ;
-              }
-              //Dump("3: ");
-	            doCarry(true); 
-              //Dump("4: ");
-	            offset++ ;
-            } 	
-            doCarry();
-            if(sign == -1) ChangeSign();
-            return ;
-	  }
-	  
 	  
 	private:
 
@@ -304,18 +279,61 @@ class mIntType
 			  if(val.back() > 0)
 			  	for( int i = 0 ; i < val.size(); i++){
 			  		val[i] += carry ;
-  	  		  if(val[i] < 0 ){ carry = -1 ;  val[i] += UL; }
+  	  		  if(val[i] < 0 ){ carry = -1 ; val[i] += UL; }
   	  		  else carry = 0 ;
 			  	}
 			  else if (val.back() < 0)
 			  	for( int i = 0 ; i < val.size(); i++){
 			  		val[i] += carry ;
-  	  		  if(val[i] > 0 ){ carry = 1 ;   val[i] -= UL; }
+  	  		  if(val[i] > 0 ){ carry =  1 ; val[i] -= UL; }
   	  		  else carry = 0;
 			  	}
 			  while (val.size() && (val.back() == 0)) val.pop_back();
 		};
-#define VALIDATE
+		
+#ifdef SCHOOLBOOK
+	  void schoolbookMul (mIntType b){
+            long long a, multiplier  ;            
+ 						mIntType t1 ;
+ 						if (Sign() == 0) { return;}
+ 						if (b.Sign() == 0) { val.clear() ; return  ;}
+
+            int sign = Sign() * b.Sign();
+            
+            if( Sign() == -1) ChangeSign();
+            if( b.Sign() == -1) b.ChangeSign();
+            
+            t1 = *this ; std::reverse(t1.val.begin(), t1.val.end());
+            	
+            val.clear();
+            while (val.size() < ((t1.val.size() + b.val.size()) +2) ) val.push_back(0);					 
+                   	
+            int offset = 0;       	
+            while (t1.val.size() ){
+            	 multiplier = ( long long ) t1.val.back(); //we begin with LSD, t1 was reversed
+            	 t1.val.pop_back();
+            	 // we take two passes, first the even digits, 
+            	 for(int ib = 0 ; ib < b.val.size(); ib += 2 ){
+              	a =  multiplier * b.val[ib];
+              	val[ib+offset]   += a%UL ;
+              	val[ib+offset+1] += a/UL ;
+              }
+	            doCarry(true); // fixing carries between each product result here
+            	 // and then the odd digits, 
+            	for(int ib = 1 ; ib < b.val.size(); ib += 2 ){
+              	a =  multiplier * b.val[ib];
+              	val[ib+offset]   += a%UL ;
+              	val[ib+offset+1] += a/UL ;
+              }
+	            doCarry(true); // fixing carries between each product result here, again
+	            offset++ ;
+            } 	
+            doCarry();// final clean up, less could do.
+            if(sign == -1) ChangeSign();
+            return ;
+	  }
+#endif	  
+
 #ifdef VALIDATE
     // useful for low level debug and validation
     //  Dump of the internal state

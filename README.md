@@ -6,7 +6,7 @@ The number zero is representated by an empty vector. I've found this format surp
 The digits can be either radix 10^9 == 1.000.000.000  (#define DECIMAL)  og radix 2^30 = 1.073.741.824.  DECIMAL has an advantage with regard to I/O speed. 
 By using only 30 bits, digitwise addition can't overflow, allowing carry between digits to be postponed to more convenient points in the computation.
 
-During addditon of numbers with differnnt signs, it is necessary to 'normalize' the final result ( no leading zero, and same sign on all non-zero digits), but this is a relatively simple matter - 
+During addditon of numbers with different signs, it is necessary to 'normalize' the final result ( no leading zero, and same sign on all non-zero digits), but this is a relatively simple matter - 
 after carry adjustments, the MSD will have the 'true' sign for the number, allowing a simple carry-like  operation to force wayward digits have the proper sign. This step is not neceesary when the
 numbers added have the same sign.
 

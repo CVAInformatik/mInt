@@ -27,7 +27,7 @@ and mInt_rand.h adds a very simple radom number generator (used in some mInt_lib
 
 mInt_test.cpp tests/demonstrates the various functions in mInt_lib
 
-Planned extensions:  a class implementing Montgomery Arithmetic using mInt,  Schönhage-Strassen FFT multiplication for very large numbers, mostly because I like FFT based algorithms.
+Planned additions:  a class implementing Montgomery Arithmetic using mInt (maybe as a separate project),  Schönhage-Strassen FFT multiplication for very large numbers, mostly because I like FFT based algorithms.
 
 Most of the code in the basic mInttype class are simplified versions of  my yabInt/pInt classes, which tended to grow out of hand. Many of the library functions are just ports from these projects. Sometimes also simplified, rather surprisingly, since mIntType - in some ways - is a simpler type.
 

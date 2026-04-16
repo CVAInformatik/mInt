@@ -23,7 +23,7 @@ Apropos speed: Compared to yabInt and pInt, I've tried to keep the number of all
 mInt_test_min.cpp demonstrates this minimal implementation. 
 
 mInt_lib.h/cpp adds a number of library functions ( modular exponentiation, Miller-Rabin primality test, Jacobi-symbol .......), ItoA2.cpp adds iToString() for  faster I/O for the binary radix
-and mInt_rand.h adds a very simple radom number generator (used in some mInt_lib functions, like TonelliShanks() (modular squareroot).
+and mInt_rand.h adds a very simple radom number generator (used in some mInt_lib functions, like TonelliShanks() (modular squareroot)).
 
 mInt_test.cpp tests/demonstrates the various functions in mInt_lib
 

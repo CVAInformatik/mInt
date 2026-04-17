@@ -7,8 +7,7 @@ The digits can be either radix 10^9 == 1.000.000.000  (#define DECIMAL)  og radi
 By using only 30 bits, digitwise addition can't overflow, allowing carry between digits to be postponed to more convenient points in the computation. Examples of this can be found in the '+=' operator implementation and in Schoolbook multiplication.
 
 After addditon of numbers with different signs, it is necessary to 'normalize' the final result ( no leading zero, and same sign on all non-zero digits), but this is a relatively simple matter - 
-after carry adjustments, the MSD will have the 'true' sign for the number, allowing a simple carry-like  operation to force wayward digits have the proper signs. This step is not neceesary when the
-numbers added have the same sign.
+after carry adjustments, the first non-zero MSD will have the 'true' sign for the number, allowing a simple carry-like  operation to force wayward digits have the proper signs. This step is not neceesary when the numbers added have the same sign.
 
 I've tried to keep the number of 'friends' down, for simplicity reasons. Currently there is one, DivRem().
 
@@ -16,7 +15,7 @@ The simplest version is less than 500 LOC, most of it in mInt.h. It has a simple
 It uses what must be  the simplest version of multiplication known, sometimes called  "Russian Peasant Multiplication", which is not very fast, but still usable for just playing around.
 
 Various 'improvements' (mostly for speed )  can be enabled by #defines : a variant of Karatsuba multiplication and  a variant of Schoolbook multiplication taking advantage of the 30 bit range.
-They do not add any functionality to the basic code, just speed improvements. They will push the LOC count up above the 500 LOCs, but not by much.
+They do not add any functionality to the basic code, just speed improvements ( 'Schoolbook' appears to be 3 times as fast as 'Russian Peasant'). They will push the LOC count up above the 500 LOCs, but not by much.
 
 Apropos speed: Compared to yabInt and pInt, I've tried to keep the number of allocations of temporary mInt copies down, eg.  a-=b is implemented as a =  -(-a+b), reusing the += code and avoiding changing the sign of b.
 

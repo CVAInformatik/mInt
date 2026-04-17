@@ -237,13 +237,13 @@ bool MillerRabin(const mIntType &number, int witnesses)
                mIntType t = m;
                t -= x;
                if ((y == 1) && ( x != 1) && (t!=1)) {
-                   std::cout << "mr fail at " << ix << " ";
+                   //std::cout << "mr fail at " << ix << " ";
                     return false;  
                 }
                 x = y;
             }
             if (x != 1 ) {
-                std::cout << "mr fail at " << ix << " ";
+                //std::cout << "mr fail at " << ix << " ";
                 return false;
             }
         }
@@ -286,21 +286,12 @@ bool  TonelliShanks(const mIntType & n, const mIntType& p, mIntType& res) {
 	} while (Jacobi(z, p) != -1);
 
 	mIntType c = modpow(z, q, p);
-	//std::cout << " z: " << iToString(z) << std::endl;
-	//std::cout << " q: " << iToString(q) << std::endl;
 		mIntType p1 = p;
-	//std::cout << " p: " << iToString(p1) << std::endl;
-	//std::cout << " c: " << iToString(c) << std::endl;
 		mIntType  t = modpow(n, q, p);
 		mIntType  m = s;
 		mIntType  m_1 = m;
 		mIntType  result = modpow(n, (q + 1) >>= 1, p);
-
-	//std::cout << " c: " << iToString(c) << std::endl;
-	//std::cout << " t: " << iToString(t) << std::endl;
-	//std::cout << " m: " << iToString(m) << std::endl;
-	//std::cout << " R: " << iToString(R) << std::endl;
-
+	
 loop:
 	if (t.Sign() == 0) {
 		res = 0;
@@ -309,7 +300,6 @@ loop:
 	}
 	if (t == 1) {
         res = result;
-		std::cout << "Root is " << iToString(result) << std::endl;
 		return true;
 	}
 	int  i = 0;
@@ -329,14 +319,11 @@ loop:
 
 	temp2 = modpow(2, temp1, p);
 
-		mIntType  b = modpow(c, temp2, p);
+	mIntType  b = modpow(c, temp2, p);
 	c = modmult(b, b, p);
 	t = modmult(t, c, p);
 	m = i;
 	result = modmult(result, b, p);
-	//std::cout << " c: " << iToString(c) << std::endl;
-	//std::cout << " t: " << iToString(t) << std::endl;
-	//std::cout << " R: " << iToString(result) << std::endl;
 
 	goto loop;
 	return  true;

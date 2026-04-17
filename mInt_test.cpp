@@ -364,31 +364,35 @@ void testMR1(int &npcount, int &pcount, int width,  mIntType& p)
     mIntType prime = p;
 
     std::string s = iToString(prime);
-    std::string prefix = "";
-
-    while (prefix.length() + s.length() < width) prefix = prefix + " ";
 
     if (MillerRabin(prime, 30)) {
-        std::cout << "n " << prefix << s << " is probably prime  " <<   ++pcount << std::endl;
+        std::cout << std::setw(width+6) << s << " is probably prime " << std::setw(2) <<  ++pcount << std::setw(5) <<  npcount + pcount << std::endl;
     }
     else {
-        std::cout << "n " << prefix << s << " is not prime  " <<  ++npcount + pcount <<  std::endl;
+    	  ++npcount;
+        //std::cout << std::setw(width +10) << s << " is not prime      " << std::setw(5) <<  ++npcount + pcount <<  std::endl;
     };
 }
 
-
-void testModMult()
+/* what happened here ?
+void testModMul()
 {
     mIntType mod; mod = aToI("2147483647");
     mIntType result; result = aToI("4026531840");
     std::cout << "mod : " << iToString(mod) << std::endl;
     std::cout << "result: " << iToString(result) << std::endl;
-     //result = RemQuotient(result, mod, NULL);
-     result %= mod ;
-     std::cout << "result: " << iToString(result) << std::endl;
+    result %= mod ;
+    std::cout << "result: " << iToString(result) << std::endl;
 }
 
+void testModMult()
+{
+    for (int i = 0; i < COUNT; i++) 
+        testModMul();
 
+}
+
+*/
 
 void testMR()
 {
@@ -407,23 +411,28 @@ void testMR()
 
 
 #define COUNT 1000
+#define COUNTMR 9    
 
     np = 0;
     p = 0;
 
-    std::cout << "    seed:             " << iToString(prime) << std::endl;
-    for (int i = 0; i < COUNT; i++) {
-#if 1
-        mIntType pc = Rands.rand(prime);
-        if (!pc.isOdd()) pc += 1;
- //       std::cout << "mod : " << iToString(p) << std::endl;
-        testMR1(np, p, WIDTH, pc);
-#else
-        testModMult();
-#endif
-
-    }
+    mIntType seed(prime);
+    seed *= prime ;
+	for( int c = 0; c < COUNTMR; c++){    
+  	  std::string s = iToString(seed);
+    	int w = s.length();
+    	std::cout << std::endl<< "seed: "<< std::setw(w) << s <<" (" << std::setw(5) << w <<" digits" <<" ) " <<  std::endl << std::endl;
+    	for (int i = 0; i < COUNT; i++) {
+      	  mIntType pc = Rands.rand(seed);
+        	if (!pc.isOdd()) pc += 1;
+        	testMR1(np, p, w, pc);
+    	}
+    	seed *= 3793  ;  np = 0; p = 0 ;
+	}
+        
 }
+
+
 
 #ifdef TONELLISHANKS
 void testTonelliShanks()
@@ -449,7 +458,8 @@ void testTonelliShanks()
         QueryPerformanceFrequency(&Frequency);
         QueryPerformanceCounter(&StartingTime);
 #endif
-        TonelliShanks(A, P, Res);
+        if( TonelliShanks(A, P, Res))
+        			std::cout<< std::endl<< std::endl << "Root is " << iToString(Res) << std::endl;
 #ifdef PERF
         QueryPerformanceCounter(&EndingTime);
         ElapsedMicroseconds.QuadPart = EndingTime.QuadPart - StartingTime.QuadPart;
@@ -476,7 +486,7 @@ void testTonelliShanks()
 int main(int argc, char **argv)
 {
 	      testTonelliShanks();
-	      //testMR();
+	      testMR();
 	      //testRandom();
 	      //testMultiplication();
 	#if 0

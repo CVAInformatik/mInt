@@ -140,7 +140,7 @@ class mIntType
 						 	     if( i < cut) t1.val.push_back(val[i]);
 						 	     else t2.val.push_back(val[i]);  
 						 	 while(t1.val.size() && (t1.val.back() == 0 )) t1.val.pop_back();
-						   t1 *= b ; 
+						   t1 *= b ; // these are recursive calls for large numbers
 						   t2 *= b ; t2.mulModulus(cut);
 						   *this = t1;  *this += t2 ;
 						 	 return *this;
@@ -152,12 +152,13 @@ class mIntType
 						 	     if( i < cut) t1.val.push_back(b.val[i]);
 						 	     else t2.val.push_back(b.val[i]);  
 						 	 while(t1.val.size() && (t1.val.back() == 0 )) t1.val.pop_back();
-						 	 t1 *= *this ; 
+						 	 t1 *= *this ; // these are recursive calls for large numbers
 						 	 t2 *= *this ; t2.mulModulus(cut);
 						 	 *this = t1; *this += t2 ;						 	
 						 	 return *this;
 						 }
 #endif 	
+            // Karatsuba falls down here when the numbers are small enough-
 #ifndef SCHOOLBOOK
 						// 'Russian Peasant' algorithm, slow but simple......
       	 		int resign = 1 ;
@@ -177,7 +178,7 @@ class mIntType
  		  			if( (resign) < 0) ChangeSign(); 		       
       			return *this;
 #else
-            // schoolbook multiplication a la mIntType 
+            // schoolbook multiplication with a mIntType flavour.
             mIntType _b(b);
             schoolbookMul(_b);
             return *this ;
@@ -233,7 +234,8 @@ class mIntType
     				}
      			};
 
-    // divides with modulus AKA "removing the least p  significant digits" and returning the LSD as result 
+    // divides with modulus AKA "removing the least p  significant digits" and returning the original 
+    // LSD as result 
     // if number or p  is zero returns UL ( an invalid value for a digit !) as result.        
     inline baseType divModulus(unsigned int p = 1) {  
     	 			baseType res = UL; // not a valid value !
@@ -295,16 +297,14 @@ class mIntType
 	  void schoolbookMul (mIntType b){
             long long a, multiplier  ;            
  						mIntType t1 ;
+            int sign = Sign() * b.Sign();
  						if (Sign() == 0) { return;}
  						if (b.Sign() == 0) { val.clear() ; return  ;}
-
-            int sign = Sign() * b.Sign();
-            
             if( Sign() == -1) ChangeSign();
             if( b.Sign() == -1) b.ChangeSign();
             
             t1 = *this ; std::reverse(t1.val.begin(), t1.val.end());
-            	
+
             val.clear();
             while (val.size() < ((t1.val.size() + b.val.size()) +2) ) val.push_back(0);					 
                    	
@@ -314,21 +314,32 @@ class mIntType
             	 t1.val.pop_back();
             	 // we take two passes, first the even digits, 
             	 for(int ib = 0 ; ib < b.val.size(); ib += 2 ){
-              	a =  multiplier * b.val[ib];
+              	a =  multiplier * b.val[ib]; // a is in the closed range 0..((UL-1)*(UL-1))
+#ifdef DECIMAL              	
               	val[ib+offset]   += a%UL ;
               	val[ib+offset+1] += a/UL ;
+#else
+//some compilers figures this out on their own, when UL is a power of 2
+              	val[ib+offset]   += (baseType)( a & ( UL-1)) ; 
+               	val[ib+offset+1] += (baseType)( a >> BITSIZE); 
+#endif              	
               }
 	            doCarry(true); // fixing carries between each product result here
             	 // and then the odd digits, 
             	for(int ib = 1 ; ib < b.val.size(); ib += 2 ){
-              	a =  multiplier * b.val[ib];
+              	a =  multiplier * b.val[ib]; 
+#ifdef DECIMAL              	
               	val[ib+offset]   += a%UL ;
               	val[ib+offset+1] += a/UL ;
+#else
+              	val[ib+offset]   += (baseType)( a & ( UL-1)) ; 
+               	val[ib+offset+1] += (baseType)( a >> BITSIZE); 
+#endif              	
               }
 	            doCarry(true); // fixing carries between each product result here, again
 	            offset++ ;
             } 	
-            doCarry();// final clean up, less could do.
+            while(val.size() && (val.back() == 0)) val.pop_back(); // final clean up
             if(sign == -1) ChangeSign();
             return ;
 	  }

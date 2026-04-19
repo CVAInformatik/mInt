@@ -9,6 +9,8 @@ CPPFLAGS =  -O2   -Wwrite-strings
 clean:
 	rm *.o
 
+MontmInt.o : MontmInt.cpp MontmInt.h mInt.h
+
 mInt.o : mInt.cpp  mInt.h 
 
 mInt.o : mInt.cpp  mInt.h 
@@ -25,4 +27,7 @@ mInt_test :  mInt_test.o  mInt.o iToA2.o mInt_lib.o
 
 mInt_test_min :  mInt_test_min.o  mInt.o
 
+MontmInt_test.o : MontmInt_test.cpp MontmInt.h mInt.h mInt_lib.h
+
+MontmInt_test :  MontmInt_test.o  mInt.o iToA2.o mInt_lib.o MontmInt.o 
 

@@ -58,6 +58,7 @@ typedef int baseType;
 class mIntType 
 {
 	public:
+		static const baseType DIGITSIZE = BITSIZE ;
 		static const baseType UL = MODULUS;
 		static const baseType LL = (-MODULUS);
 		
@@ -258,6 +259,8 @@ class mIntType
     							
 		// I would have liked to avoid friend declarations, but a quick and dirty workaround, for re-using old code......
 		friend void DivRem(const mIntType &a, const mIntType &m, mIntType &Quotient, mIntType &Remainder );	
+	  // Montgomery related friend 
+		friend void REDC(  const mIntType &R, const mIntType &N, const mIntType &Ninv, mIntType &a);
 	  
 	private:
 

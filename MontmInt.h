@@ -1,6 +1,6 @@
 #pragma once
 /*
-Copyright  ©2026 Claus Vind-Andreasen
+Copyright  Â©2026 Claus Vind-Andreasen
 
 This program is free software; you can redistribute it and /or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the GNU General Public License for more details.
@@ -56,7 +56,7 @@ public:
     //   R x Rinv + N x Ninv == 1 ==>                   ( we add zero )
     //   R x Rinv + 0 +  N x Ninv == 1 ==>              ( in the form of (R x N - R x N) = 0
     //   R x Rinv + (R x N - R x N) +   N x Ninv == 1 > == > ( and rearrange )
-    //   R x (Rinv - N) + N x ( Ninv + R) )== 1         ( until Rinv > 0 )
+    //   R x (Rinv + N) + N x ( Ninv - R) )== 1         ( until Rinv > 0 )
 		while (( Rinv.Sign() == -1) ) {
 			    mIntType rq, rn;
 			    rq = Rinv; rq.ChangeSign(); rq/= N;

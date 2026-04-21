@@ -42,6 +42,13 @@ public:
    					return r;	
 				}
 			
+      //	  returns an a-bit  'random number' 
+			mIntType rand(unsigned int a = 512 ){
+						mIntType r(1);	
+						r <<= a ;						
+   					return rand(r);	
+				}
+			
 
 private:
 	

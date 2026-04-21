@@ -30,12 +30,15 @@ void Montgomery_test( mIntType & N)
 	return ;
 }
 
-void MontPollardRho2( mIntType & N)
+void MontPollardRho( mIntType & N)
 {
 	
 	int counter = 0;
 	std::cout<< std::endl << "MontPollardRho: " << iToA(N) << std::endl;
-	
+	if( MillerRabin( N, 29)){
+		std::cout << "MontPollardRho: probably a prime " << iToA(N) << std::endl;
+	}
+
 #define LIM1 2000000000	
 
 	mIntType seed(1);
@@ -81,23 +84,38 @@ void MontPollardRho2( mIntType & N)
 void MontPollardRho(const char *s) 
 {
 	mIntType N;  N = aToI(s);
-	if( MillerRabin( N, 29)){
-		std::cout << "MontPollardRho: probably a prime " << iToA(N) << std::endl;
-	}
-  else 	MontPollardRho2( N) ;
+  MontPollardRho( N) ;
 }
 
 void testMontgomery2()
 {
 
-  MontPollardRho("649037107316853453566312041152511");//M109
-  MontPollardRho("2535301200456458802993406410751");//M101
-  MontPollardRho("803469022129495137770981046170581301261101496891396417650687");//M199
-  MontPollardRho("115792089237316195423570985008687907853269984665640564039457584007913129639937");//F8
-  MontPollardRho("340282366920938463463374607431768211457");//F7
-  MontPollardRho("13407807929942597099574024998205846127479365820592393377723561443721764"
-  "0300735469768018742981669034276900318581864860508537538828119465699464336"
-	"49006084097"); // F9
+  //MontPollardRho("649037107316853453566312041152511");//M109
+  //MontPollardRho("2535301200456458802993406410751");//M101
+  //MontPollardRho("803469022129495137770981046170581301261101496891396417650687");//M199
+  //MontPollardRho("115792089237316195423570985008687907853269984665640564039457584007913129639937");//F8
+  //MontPollardRho("340282366920938463463374607431768211457");//F7
+  //MontPollardRho("13407807929942597099574024998205846127479365820592393377723561443721764"
+  //"0300735469768018742981669034276900318581864860508537538828119465699464336"
+	//"49006084097"); // F9	
+	mIntType F10(1);
+	F10 <<= 1024 ;
+	F10 += 1;
+	MontPollardRho(F10);
+	mIntType F11(1);
+	F11 <<= 2048 ;
+	F11 += 1;
+	MontPollardRho(F11);
+	mIntType F12(1);
+	F12 <<= 4096 ;
+	F12 += 1;
+	MontPollardRho(F12);
+	/* Nope, appears difficult
+	mIntType F13(1);
+	F13 <<= 8192 ;
+	F13 += 1;
+	MontPollardRho(F13);
+	*/
 }
 
 /* 
@@ -180,7 +198,7 @@ void testMontgomery3()
      	    if (MillerRabin(pc, 30))
         			std::cout << std::setw(w+6) << s << " is probably prime " << std::endl;    			
     			else 
-    				 MontPollardRho2( pc);			    
+    				 MontPollardRho( pc);			    
     }        
 }
 

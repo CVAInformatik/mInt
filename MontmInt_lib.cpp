@@ -27,7 +27,7 @@ If this is what you want to do, use the GNU Library General Public License inste
 */
 
 //DELTA controls how often we run the GCD
-#define DELTA  17
+#define DELTA  8
 
 mIntType MontPollardRho( mIntType & N , unsigned int IterationLimit )
 {

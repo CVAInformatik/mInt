@@ -194,7 +194,7 @@ int main(int argc, char **argv){
    //testMR2();
 	 //testMontgomery();
 	 //testMontgomery2();
-	 testMontgomery3_lib();
-	 //testMontgomery_lib();
+	 //testMontgomery3_lib();
+	 testMontgomery_lib();
 	 return 0 ;
 }

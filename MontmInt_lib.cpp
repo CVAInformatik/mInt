@@ -27,7 +27,7 @@ If this is what you want to do, use the GNU Library General Public License inste
 */
 
 //DELTA controls how often we run the GCD
-#define DELTA  8
+#define DELTA  17
 
 mIntType MontPollardRho( mIntType & N , unsigned int IterationLimit )
 {
@@ -69,7 +69,8 @@ mIntType _MontPollardRho( mIntType & N , unsigned int IterationLimit )
 		 		mIntType diff = nkdiff.tomInt();
 		 		mIntType b1 ;
 		 		mIntType b2 ;
-		 		extendedGCD(diff, N, res, b1, b2);
+		 		//extendedGCD(diff, N, res, b1, b2);
+		 		binGCD(diff, N, res);
   	 		if( res != 1 ) return res;
 		 	  }
 		 	}

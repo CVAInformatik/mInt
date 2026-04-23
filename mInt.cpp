@@ -125,17 +125,17 @@ void DivRem(const mIntType &a, const mIntType &m, mIntType &Quotient, mIntType &
 	{
 			Quotient = (a.val[0]/m.val[0]);
 			Remainder= (a.val[0] % m.val[0]);
-/*			if( Remainder.val.size() > 0 )
-				printf("1 DivRem  R %d\n", Remainder.val[0]);
-			else 
-				printf("2 DivRem  R %d\n", 0);
-*/			return;
+			return;
 	}
 	
 	// at least one big number
 	mIntType _dividend(a);
 	mIntType _divisor(m);
+#ifdef DECIMAL	
+	int reciprocal = m.UL/(3 + m.val.back() );
+#else
 	int reciprocal = m.UL/(2 + m.val.back() );
+#endif
 	int shift = (int) m.Digits();
 	mIntType _reciprocal(reciprocal);
 	

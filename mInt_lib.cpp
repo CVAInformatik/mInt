@@ -30,35 +30,35 @@ void  Mersenne(unsigned int _N,  mIntType &a )
 
 
 #ifdef GCD
-void _GCD(const mIntType &a, const mIntType &b, mIntType &gcd)
+void binGCD(const mIntType &a, const mIntType &b, mIntType &gcd)
 {
 	  if(a.Sign()== 0) { gcd =  0; return ;}
 	  if(b.Sign()== 0) { gcd =  0; return ;}
 	  
-	  unsigned int shift = 0;
+	  unsigned int shifts = 0;
+	  unsigned int divs = 0;
 	  mIntType _ac(a);
 	  mIntType _bc(b);
-	  
+  	while ((_ac.LSD() | _bc.LSD()  )== 0){_ac.divModulus() ; _bc.divModulus(); divs++;}
+  	
 	  while ( !_ac.isOdd() && !_bc.isOdd()){
 	  	 _ac >>= 1;
 	  	 _bc >>= 1;
-	  	 shift++;
+	  	 shifts++;
 	  }
 
-	  while (!_ac.isOdd()) _ac >>= 1;
-	  
-    while (_bc.Sign() > 0) {
-	 			 while (!_bc.isOdd()) _bc >>= 1;	
-				 if( _ac < _bc ) {
-	 			 	mIntType swap = _ac ;
-	 			 	_ac = _bc;
-	 			 	_bc = swap;
-	 			 }
-	 			 _bc -= _ac;
-	 			 _bc >>= 1 ; 
+    mIntType min, max;
+    while( _bc.Sign() != 0){
+	  	while (!_bc.isOdd()) _bc >>= 1;
+	  	
+	  	if( _bc <_ac) { min = _bc; max = _ac; } 
+	  	else          { min = _ac; max = _bc; }
+	  	_ac =  min;
+	  	_bc = (max - min);
 		}
-		_ac <<= shift ;
-		gcd = mIntType(_ac);
+		_ac <<= shifts ;
+		_ac.mulModulus(divs);
+		gcd = _ac;
 }
 #endif
 #if 1

@@ -21,11 +21,10 @@ If this is what you want to do, use the GNU Library General Public License inste
 	}
 	
  	MontmIntType   &MontmIntType::frommInt(const mIntType &a){
- 		  mIntType quotient;
  		  mIntType temp(a);
  		  val = 0;
- 		  temp <<= ((Rdigits  - 1) * mIntType::DIGITSIZE) ;
- 		  DivRem(temp, N, quotient, val);
+ 		  temp <<= ((Rdigits  - 1) * mIntType::DIGITSIZE) ; 		  
+ 		  val = temp %N;
  		  return *this;
  	}
 

@@ -37,7 +37,7 @@ typedef int baseType;
 // for DECIMAL bitsize is only 29.897.... bits, 30 will do 
 #define DECMODULUS 1000000000
 
-//#define DECIMAL
+#define DECIMAL
 #ifdef DECIMAL
 #define MODULUS DECMODULUS
 #else
@@ -205,8 +205,13 @@ class mIntType
  			inline mIntType& operator>>=(unsigned int s){
 		      	int sign = Sign();
 		      	if (sign < 0) ChangeSign();
-#ifndef DECIMAL
- 			      while (s >BITSIZE )  {  s -=BITSIZE ; divModulus() ;} // binary allows some optimization
+#ifdef DECIMAL
+            // one reason DECIMAL is not universally used 
+						while (s >= 9 )  { s -=9 ; shift9() ;} // with radix 10^9 = (5^9)(2^9) we can work 
+						                                       // in 9 bit lumps and some 'carry' handling
+#else
+ 			      while (s >= BITSIZE )  {  s -=BITSIZE ; divModulus() ;} // binary allows some optimization
+ 			                                             // using 30 bit lumps directly
 #endif 			      	
             while (s-- && val.size() ){
 		 			      // we do s one bit shifts.
@@ -216,7 +221,8 @@ class mIntType
  			      	  }
  			      		val[val.size()-1] >>= 1;
  			      	  if (val.back() == 0 ) val.pop_back(); 
- 			      } 			      	 			    	
+ 			      }
+ 			      dropZeroes();  			      	 			    	
  			      if (sign < 0) ChangeSign();
  			      return *this;
  			};
@@ -242,10 +248,12 @@ class mIntType
     	 			baseType res = UL; // not a valid value !
     				if(val.size() > 0) {
     						res = val[0];
-	    	      	std::reverse( val.begin(), val.end());
 	    	      	if( p >= val.size()) val.clear();
-    					  else for( int i = 0 ; i < p ; i++) val.pop_back();
-    					  std::reverse( val.begin(), val.end());
+    					  else {
+				    	      	std::reverse( val.begin(), val.end());
+    					  			for( int i = 0 ; i < p ; i++) val.pop_back();
+    					  			std::reverse( val.begin(), val.end());
+    					  }
     			  }
    				  return res ;
        	 } ;   	                
@@ -266,6 +274,8 @@ class mIntType
 
 		std::vector<baseType> val;
 		
+		inline void dropZeroes(){ while (val.size()  && (val.back() == 0) ) val.pop_back(); }
+		
 		void doCarry(bool skip = false ){
 			  baseType carry = 0 ;
 			  for(int i = 0; i < val.size(); i++){
@@ -275,7 +285,7 @@ class mIntType
 			       else carry = 0;
 			  }
 			  if( carry != 0 ) val.push_back(carry);
-			  if(!skip) while( val.size()  && (val.back() == 0)) val.pop_back();
+			  if(!skip) dropZeroes();
 		};
 		
 		void doNormalize(){
@@ -293,9 +303,21 @@ class mIntType
   	  		  if(val[i] > 0 ){ carry =  1 ; val[i] -= UL; }
   	  		  else carry = 0;
 			  	}
-			  while (val.size() && (val.back() == 0)) val.pop_back();
+			  dropZeroes();
 		};
 		
+#ifdef DECIMAL		
+		inline void shift9(){  // assumes a positive number !!
+			for( int i = 0 ; i < val.size()-1 ; i++){
+				baseType carry  = val[i+1] & 0x1FF ;
+				val[i] >>=  9 ;
+				val[i] += (UL/512) *carry ;
+			}
+			val[val.size() -1] >>= 9;
+			dropZeroes();
+		}
+#endif
+
 #ifdef SCHOOLBOOK
 	  void schoolbookMul (mIntType b){
             long long a, multiplier  ;            
@@ -342,7 +364,7 @@ class mIntType
 	            doCarry(true); // fixing carries between each product result here, again
 	            offset++ ;
             } 	
-            while(val.size() && (val.back() == 0)) val.pop_back(); // final clean up
+            dropZeroes(); // final clean up
             if(sign == -1) ChangeSign();
             return ;
 	  }

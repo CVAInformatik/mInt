@@ -27,7 +27,7 @@ public:
 		 N = _N;
 		 R =  1; Rdigits = 1;
   	 while ( N > R) { 
-   	 	R<<= mIntType::DIGITSIZE; 
+   	 	R.mulModulus();
   	 	Rdigits++;
   	 	}
 		 mIntType gcd ;

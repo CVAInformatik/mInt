@@ -433,6 +433,29 @@ void testMR()
 }
 
 
+void testShiftRight()
+{
+    mIntType prime; prime = aToI("26959946667150639794667015087019630673557916260026308143510066298881");
+
+    
+#ifdef DECIMAL
+		std::cout<< " radix 10^9 Shift test"  << std::endl;
+#else
+		std::cout<< " radix 2^30 Shift test"  << std::endl;
+#endif			
+    for(int i = 0; i < 230 ; i++){
+    	//prime = aToI("26959946667150639794667015087019630673557916260026308143510066298881");
+    	prime = aToI("10000000000000000000000000000000000000000000000000000000000000000000");
+    	std::cout <<std::setw(5) << i << std::setw(85)  <<  iToString(prime ) << std::endl;
+    	prime >>= i ;
+    	std::cout << std::setw(5) << i << std::setw(85) <<   iToString(prime ) << std::endl;
+    	prime  <<= i ;
+    	std::cout <<std::setw(5) << i << std::setw(85) <<   iToString(prime ) << std::endl << std::endl;    		
+    }
+        
+}
+
+
 
 #ifdef TONELLISHANKS
 void testTonelliShanks()
@@ -485,11 +508,12 @@ void testTonelliShanks()
 
 int main(int argc, char **argv)
 {
+	      testShiftRight();
+	#if 0
 	      testTonelliShanks();
 	      testMR();
 	      //testRandom();
 	      //testMultiplication();
-	#if 0
 	      mIntType x(  863816);
 	      mIntType y(29792147);
 	      mIntType z ; 

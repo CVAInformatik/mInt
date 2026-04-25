@@ -91,7 +91,7 @@ void initStack(){
 	 	
 	 mIntType  a ; a = aToI(s.c_str()) ;	 
 	 iToSStack.clear();
-	 iToSStack.push_back( iToSfragmentType( a, s.length()-1 ));
+	 iToSStack.push_back( iToSfragmentType( a, s.length() ));
 	 increaseStack(); 
 	 increaseStack(); 
 	 increaseStack(); 
@@ -155,7 +155,7 @@ std::string iToString(const mIntType &a )
 	 if (iToSStack.size() == 0)	 initStack();
 	 	
    if(a.Digits()  < iToSStack[0].fragmentSize.Digits())    
-   		return iToA(a);	 
+   		return iToA(a);
    else 
 			res = fastItoA(a);   	
    	    

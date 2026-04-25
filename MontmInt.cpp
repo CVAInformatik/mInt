@@ -22,8 +22,8 @@ If this is what you want to do, use the GNU Library General Public License inste
 	
  	MontmIntType   &MontmIntType::frommInt(const mIntType &a){
  		  mIntType temp(a);
- 		  val = 0;
- 		  temp <<= ((Rdigits  - 1) * mIntType::DIGITSIZE) ; 		  
+ 		  val = 0; 		  
+ 		  temp.mulModulus(Rdigits  - 1); 		  
  		  val = temp %N;
  		  return *this;
  	}

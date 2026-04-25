@@ -9,7 +9,7 @@ If this is what you want to do, use the GNU Library General Public License inste
 */
 
 #include "mInt.h"
-
+#include <iostream>
 
 // 0 if equal, 1 if a > b, -1 if a < b;
 int mIntCompare( const mIntType &a, const mIntType &b){
@@ -52,13 +52,13 @@ char *iToA(const mIntType &a )
       	
 			/* not zero and not negative */			
 		  c = (char *) malloc(5+(temp.Digits() *11));
-		  memset(c,0, 5+(temp.Digits()*10) );
+		  memset(c,0, 5+(temp.Digits()*11) );
 			char *d = c;	
 
 // we convert in 9 digit lumps			
 
 			do {	
-				char buffer[10] ;
+				char buffer[15] ;
 				
 #ifdef DECIMAL
 				sprintf(buffer,FORMAT, temp.divModulus());			  
@@ -92,7 +92,7 @@ char *iToA(const mIntType &a )
 					 
 				char *c2 = buffer+8;
 				for( int i = 0 ; i < 9 ; i++)	*d++ = *c2--;
-				*d = '\0'; 				
+				*d = 0; 				
 				temp = Q;
 				Q = 0;
 #endif				
@@ -110,7 +110,9 @@ char *iToA(const mIntType &a )
 				 *d1 ^= *d2; 
 				 d1++; d2--;	
 			} 
-		  return (char *) realloc(c, 1+strlen(c));
+			char *t1 =  (char *) realloc(c, 1+strlen(c));
+		  return t1 ;
+
 }
 
 void DivRem(const mIntType &a, const mIntType &m, mIntType &Quotient, mIntType &Remainder )
@@ -131,11 +133,7 @@ void DivRem(const mIntType &a, const mIntType &m, mIntType &Quotient, mIntType &
 	// at least one big number
 	mIntType _dividend(a);
 	mIntType _divisor(m);
-#ifdef DECIMAL	
-	int reciprocal = m.UL/(3 + m.val.back() );
-#else
 	int reciprocal = m.UL/(2 + m.val.back() );
-#endif
 	int shift = (int) m.Digits();
 	mIntType _reciprocal(reciprocal);
 	

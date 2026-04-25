@@ -32,17 +32,17 @@ If this is what you want to do, use the GNU Library General Public License inste
 		mIntType m(a);
 		/* m mod R */ 
 		while( m.Digits() > (R.Digits()-1)) m.val.pop_back();
-		while( m.val.size() && (m.val.back() == 0)) m.val.pop_back();
+		m.dropZeroes();
 		m *= Ninv;
 		while( m.Digits() > (R.Digits()- 1) ) m.val.pop_back();
-		while( m.val.size() && (m.val.back() == 0)) m.val.pop_back();
+		m.dropZeroes();
 		mIntType t = N;
 		t *= m;
 		t += a;
     a.val.clear();
     for(int i = R.val.size()-1; i < t.val.size(); i++)		
       a.val.push_back(t.val[i]);
-		while( a.val.size() && (a.val.back() == 0)) a.val.pop_back();
+    a.dropZeroes();
 		if( N == a) a = 0;
 		else if ( N< a) a -= N;
 	}

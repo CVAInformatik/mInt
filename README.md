@@ -26,9 +26,9 @@ and mInt_rand.h adds a very simple radom number generator (used in some mInt_lib
 
 mInt_test.cpp tests/demonstrates the various functions in mInt_lib
 
-April 19th 2026: MontmIntType defined in MontMint.h/cpp A class implementing 'naive' Montgomery modular arithmetic added ( with testcases in MontMint_test.cpp)  demonstrating its use. A factor in Fermatnumber F7 is found in  less than 90 minutes,  factors for a collection of wellknown Mersenne and Fermat composites (including F7) is found in 95 minutes.
+April 19th 2026: MontmIntType defined in MontMint.h/cpp A class implementing 'naive' Montgomery modular arithmetic added ( with testcases in MontMint_test.cpp)  demonstrating its use.  Factors for a collection of wellknown Mersenne and Fermat composites (including F7) is found in aroung 53 minutes (using Radix 2^30) and 80 minutes (using Radix 10^9) .
 
 Planned additions:   Schönhage-Strassen FFT multiplication for very large numbers, mostly because I like FFT based algorithms.
 
-Most of the code in the basic mInttype class are simplified versions of  my yabInt/pInt classes, which tended to grow out of hand. Many of the library functions are just ports from these projects. Sometimes also simplified, rather surprisingly, since mIntType - in some ways - is a simpler type.
+Most of the code in the basic mInttype class are simplified versions of  my yabInt/pInt classes, which tended to grow out of hand. Many of the library functions are just ports from these projects. Sometimes also simplified, rather surprisingly, since mIntType  is a simpler type.
 

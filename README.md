@@ -3,7 +3,7 @@ mIntType is a big int implementation written for portability (quasi modern C++, 
 It uses what I call Signed Signed Magnitude format: Numbers are stored as a std::vector<> of  30 bit signed ints, with same sign on all non-zero digits and a non-zero Most Significant digit.
 The mInt Zero is represented by an empty vector. I've found this format surprisingly convenient.
 
-The digits can be either radix 10^9 == 1.000.000.000  (#define DECIMAL)  og radix 2^30 = 1.073.741.824.  DECIMAL has an advantage with regard to I/O speed. 
+The digits can be either radix 10^9 == 1.000.000.000  (#define DECIMAL)  or radix 2^30 = 1.073.741.824.  DECIMAL has an advantage with regard to I/O speed. 
 By using only 30 bits, digitwise addition can't overflow, allowing carry between digits to be postponed to more convenient points in the computation. Examples of this can be found in the '+=' operator implementation and in Schoolbook multiplication.
 
 After addditon of numbers with different signs, it is necessary to 'normalize' the final result ( no leading zero, and same sign on all non-zero digits), but this is a relatively simple matter - 

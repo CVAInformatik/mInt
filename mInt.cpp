@@ -11,6 +11,10 @@ If this is what you want to do, use the GNU Library General Public License inste
 #include "mInt.h"
 #include <iostream>
 
+#ifdef SCHSTRLIMIT
+//#include "mInt_ssm.cpp"
+#endif
+
 // 0 if equal, 1 if a > b, -1 if a < b;
 int mIntCompare( const mIntType &a, const mIntType &b){
    mIntType temp(a)	;

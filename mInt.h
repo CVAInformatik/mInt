@@ -25,6 +25,10 @@ If this is what you want to do, use the GNU Library General Public License inste
 
 typedef int baseType;
 
+#include "FFTBase.h"
+#include "FFTClass.h"
+#include "mInt_ssm.h"
+
 // the digits are 2s complement integers in the open interval ]-MODULUS...MODULUS[
 // this range must leave a one-bit head-room at least, but gives other advantages.
 //
@@ -37,7 +41,7 @@ typedef int baseType;
 // for DECIMAL bitsize is only 29.897.... bits, 30 will do 
 #define DECMODULUS 1000000000
 
-#define DECIMAL
+//#define DECIMAL
 #ifdef DECIMAL
 #define MODULUS DECMODULUS
 #else
@@ -51,6 +55,10 @@ typedef int baseType;
 // Controls SCHOOLBOOK or Russian Peasant multiplikation algorithm
 #define SCHOOLBOOK					
 
+// Controls Schönhage-Strassen multiplikation
+#define SCHSTRLIMIT 10000
+#define SCHSTRLIMIT1 10 
+
 //  Controls inclusion of Dump() methods for test and validation
 //#define VALIDATE
 
@@ -61,10 +69,18 @@ class mIntType
 		static const baseType DIGITSIZE = BITSIZE ;
 		static const baseType UL = MODULUS;
 		static const baseType LL = (-MODULUS);
-		
+
+#ifdef	SCHSTRLIMIT
+    // Schönhage-Strassen related stuff
+		static  FFTClass  *fft;
+		static  FFTType *re;
+		static  FFTType *im;
+		static  size_t SSMallocation;
+#endif
+
 		// constructors
-		mIntType() {val.clear();};
-		mIntType(const mIntType &a) {val.clear(); val = a.val ;};
+		mIntType() { val.clear(); };
+		mIntType(const mIntType &a) {val.clear(); val = a.val ;	};
 		mIntType(const long long  aint) {
 			   long long temp = aint;
 			   val.clear();
@@ -72,19 +88,8 @@ class mIntType
 			   while (temp > 0) {  val.push_back(temp % UL ); temp /= UL; }
 			   if( aint < 0) ChangeSign();
 				};
-
-		/*	Do we need this ?	
-		mIntType( const std::vector<baseType> v){
-			  val.clear();
-			  val = v ;
-			   // we need to ensure things don't get silly.
-			  doCarry();
-			  doNormalize(); 
-			  // we should now have a proper mInt, with same sign for all non-zero 'digits' 
-			  // decided by Most Significant nonzero digit in v
-		} */
     
-		~mIntType() { val.clear();};
+		~mIntType() { val.clear(); };
 		
  		inline mIntType&  operator=( const mIntType &a) { 
  			         if(!( &a == this)) val = a.val; 
@@ -128,10 +133,27 @@ class mIntType
            return *this;
          };
 
+		
 			
  			mIntType& operator*=( const mIntType &b )	{
  						mIntType t1,t2 ;
      		 		if( Sign() == 0)  return *this ; // LHS is zero
+#ifdef SCHSTRLIMIT
+            // Schönhage-Strassen multiplication
+            if((Digits() > SCHSTRLIMIT1 ) && (Digits() > SCHSTRLIMIT1 ) && (Digits() * b.Digits()) >  SCHSTRLIMIT){
+            	  //std::cout << "SSM " << std::endl;
+            	  if( !((long) fft & (long) re & (long) im)){ // first time ?
+#define TESTSIZE ((size_t) 10000 )  
+            	  	    fft = new FFTClass();
+									   	re  = new FFTType[TESTSIZE]; 
+   										im  = new FFTType[TESTSIZE]; 
+   										SSMallocation = TESTSIZE ;
+            	  }
+		            SchStrMultiply(fft, re, im, val, b.val);
+    		        return *this ;
+            };
+#endif
+            // else fall through 
 #ifdef KARATSUBALIMIT
              // kind of....
 						 if( Digits() > KARATSUBALIMIT){
@@ -208,7 +230,7 @@ class mIntType
 #ifdef DECIMAL
             // one reason DECIMAL is not universally used 
 						while (s >= 9 )  { s -=9 ; shift9() ;} // with radix 10^9 = (5^9)(2^9) we can work 
-						                                       // in 9 bit lumps and some 'carry' handling
+						                                       // in 9 bit lumps with some 'carry' handling
 #else
  			      while (s >= BITSIZE )  {  s -=BITSIZE ; divModulus() ;} // binary allows some optimization
  			                                             // using 30 bit lumps directly
@@ -262,13 +284,16 @@ class mIntType
     int Digits() const { return val.size(); }			
     // the value of the Least Significant digit or 0 if number is 0
     baseType LSD() const {if (val.size()) return val[0]; else return 0; } 
-    // the value of the least significant bit	
+    // the value of the least significant bit
     int isOdd() const {if (val.size()) return (val[0] & 1) == 1; else return 0;};													 
     							
 		// I would have liked to avoid friend declarations, but a quick and dirty workaround, for re-using old code......
 		friend void DivRem(const mIntType &a, const mIntType &m, mIntType &Quotient, mIntType &Remainder );	
 	  // Montgomery related friend 
 		friend void REDC(  const mIntType &R, const mIntType &N, const mIntType &Ninv, mIntType &a);
+
+	  
+
 	  
 	private:
 
@@ -344,7 +369,7 @@ class mIntType
               	val[ib+offset]   += a%UL ;
               	val[ib+offset+1] += a/UL ;
 #else
-//some compilers figures this out on their own, when UL is a power of 2
+//some compilers figures this out on their own when UL is a power of 2
               	val[ib+offset]   += (baseType)( a & ( UL-1)) ; 
                	val[ib+offset+1] += (baseType)( a >> BITSIZE); 
 #endif              	

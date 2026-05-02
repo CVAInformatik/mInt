@@ -12,6 +12,7 @@ If this is what you want to do, use the GNU Library General Public License inste
 #include <iostream>
 #include "mInt.h"
 
+
 #define FORMAT 	"%09d"		
 #define GRANULARITY  1000000000
 

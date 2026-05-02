@@ -28,7 +28,9 @@ mInt_test.cpp tests/demonstrates the various functions in mInt_lib
 
 April 19th 2026: MontmIntType defined in MontMint.h/cpp A class implementing 'naive' Montgomery modular arithmetic added ( with testcases in MontMint_test.cpp)  demonstrating its use.  Factors for a collection of wellknown Mersenne and Fermat composites (including F7) is found in aroung 53 minutes (using Radix 2^30) and 80 minutes (using Radix 10^9) .
 
-Planned additions:   Schönhage-Strassen FFT multiplication for very large numbers, mostly because I like FFT based algorithms.
-
 Most of the code in the basic mInttype class are simplified versions of  my yabInt/pInt classes, which tended to grow out of hand. Many of the library functions are just ports from these projects. Sometimes also simplified, rather surprisingly, since mIntType  is a simpler type.
+
+May 2, 2026  Schönhage-Strassen Multiplication added, Work In Progress.   Usage:  make mInt_test_ssm
+Uses an analog  In-Order-In-Place  double precision  FFT on radix  2^10  or radix 1000 digits (so one mInt digit is stored in three 'samples' )  ( depending on Radix  2^30 or 10^9 ) bit numbers. 
+It works, but WSL2 (in default configuration on a 8Gb RAM PC, so 4GB available, I suppose? ) runs out of memory. Earlier if iToString() ( beyond 8.5K digits) is used instead of (the very slow) iToA() (beyond 17K digits).  There is room for improvement...... ( Is it a leak ? Maybe  uses a  single precision FP in the FFT (easy: redefine FFTType) ? radix 2^15 in binary ? A smarter integer FFT ? ).
 

@@ -41,7 +41,7 @@ typedef int baseType;
 // for DECIMAL bitsize is only 29.897.... bits, 30 will do 
 #define DECMODULUS 1000000000
 
-//#define DECIMAL
+#define DECIMAL
 #ifdef DECIMAL
 #define MODULUS DECMODULUS
 #else

@@ -26,7 +26,7 @@ void testSSM()
     for(int i = 0; i < 10; i++)
     {
     	  a *= a ;
-    	  std::string s = "dummy "; //iToA(a);
+    	  std::string s = iToString(a);
     	  std::cout<< std::setw(5)<< i  << "  "<< std::setw(10)<< s.length()<< " "  << s << std::endl;
     }
         

@@ -84,9 +84,6 @@ static void Carry(int64_t size, FFTType *Buffer)
 
 }
 
-	//static FFTBufferType re, im ;
-
-
 /*
 
 		we convert each radix 2^30/10^9 digit to 3 Radix 2^10/10^3 digits
@@ -117,8 +114,6 @@ void  SchStrMultiply(FFTClass  *fft, FFTType *re, FFTType *im, std::vector<baseT
   	
   if( a.size() == 0) return ;
   if( b.size() == 0) { a.clear(); return; };
-
-	//DBG(0) ;
   	
 	int aSign = a.back() >= 0 ? 1 : -1;
 	int bSign = b.back() >= 0 ? 1 : -1;
